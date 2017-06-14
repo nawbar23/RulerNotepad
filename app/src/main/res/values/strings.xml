@@ -1,4 +1,25 @@
 <resources>
+    <!-- main -->
     <string name="app_name">RulerNotepad</string>
+
+    <!-- menu -->
     <string name="action_settings">Settings</string>
+    <string name="action_about">About</string>
+
+    <!-- preferences -->
+    <string name="pref_language">Language</string>
+    <string name="pref_language_summary">Application language.</string>
+    <string name="pref_language_default">English</string>
+    <string-array name="pref_language_values">
+        <item>English</item>
+        <item>Polski</item>
+    </string-array>
+
+    <string name="pref_email">Email address</string>
+    <string name="pref_email_summary">Address for sending measurements reports.</string>
+    <string name="pref_email_default">nawbar23@gmail.com</string>
+
+    <!-- preferences -->
+    <string name="action_about_description">Designed and implemented by\nBartosz Nawrot\nnawbar23@gmail.com\n\nSource code is opened and public at\nhttps://github.com/nawbar23/RulerNotepad</string>
+
 </resources>

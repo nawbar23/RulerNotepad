@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:key="pref_basic_settings"
+        android:title="Basic settings">
+
+        <ListPreference
+            android:key="pref_language"
+            android:title="@string/pref_language"
+            android:summary="@string/pref_language_summary"
+            android:dialogTitle="@string/pref_language"
+            android:entries="@array/pref_language_values"
+            android:entryValues="@array/pref_language_values"
+            android:defaultValue="@string/pref_language_default" />
+
+        <EditTextPreference
+            android:key="pref_email"
+            android:title="@string/pref_email"
+            android:summary="@string/pref_email_summary"
+            android:defaultValue="@string/pref_email_default"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
