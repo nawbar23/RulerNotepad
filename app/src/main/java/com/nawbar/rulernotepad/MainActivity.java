@@ -3,18 +3,23 @@ package com.nawbar.rulernotepad;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.nawbar.rulernotepad.editor.DataEditor;
+import com.nawbar.rulernotepad.fragments.DetailsFragment;
+import com.nawbar.rulernotepad.fragments.ProjectsFragment;
 import com.nawbar.rulernotepad.settings.SettingsActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        ProjectsFragment.ProjectsFragmentListener,
+        DetailsFragment.DetailsFragmentListener {
+
+    private DataEditor dataEditor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,32 +28,12 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab_add = (FloatingActionButton) findViewById(R.id.fab_add);
-        fab_add.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action: fab_add", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        // TODO rebuild editor from saved state
+        dataEditor = new DataEditor();
 
-        FloatingActionButton fab_remove = (FloatingActionButton) findViewById(R.id.fab_remove);
-        fab_remove.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action: fab_remove", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
-        FloatingActionButton fab_email = (FloatingActionButton) findViewById(R.id.fab_email);
-        fab_email.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action: fab_email", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new ProjectsFragment())
+                .commit();
     }
 
     @Override
@@ -83,5 +68,33 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDetailsSelect(String name) {
+        Log.e(MainActivity.class.getSimpleName(), "onDetailsSelect " + name);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new DetailsFragment())
+                .setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
+    }
+
+    @Override
+    public ProjectsFragment.ProjectsFragmentCommandsListener getProjectsCommandsListener() {
+        return dataEditor;
+    }
+
+    @Override
+    public void onPhotoSelect(String name) {
+        Log.e(MainActivity.class.getSimpleName(), "onPhotoSelect " + name);
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.container, new ProjectsFragment())
+                .setTransition(android.support.v4.app.FragmentTransaction.TRANSIT_FRAGMENT_FADE)
+                .commit();
+    }
+
+    @Override
+    public DetailsFragment.DetailsFragmentCommandsListener getDetailsCommandsListener() {
+        return dataEditor;
     }
 }
