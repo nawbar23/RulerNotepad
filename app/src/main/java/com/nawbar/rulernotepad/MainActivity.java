@@ -22,7 +22,8 @@ import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
 public class MainActivity extends AppCompatActivity implements
         MeasurementsFragment.MeasurementsListener,
-        GalleryFragment.GalleryFragmentListener {
+        GalleryFragment.GalleryFragmentListener,
+        PhotoFragment.PhotoFragmentListener {
 
     private static String TAG = MainActivity.class.getSimpleName();
 
@@ -58,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onGallerySelect(String name) {
         Log.e(TAG, "onGallerySelect: " + name);
+        mViewPager.setCurrentItem(1);
     }
 
     @Override
@@ -68,10 +70,16 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPhotoSelect(String name) {
         Log.e(TAG, "onPhotoSelect: " + name);
+        mViewPager.setCurrentItem(2);
     }
 
     @Override
     public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
+        return editor;
+    }
+
+    @Override
+    public PhotoFragment.PhotoFragmentCommandsListener getPhotoCommandsListener() {
         return editor;
     }
 

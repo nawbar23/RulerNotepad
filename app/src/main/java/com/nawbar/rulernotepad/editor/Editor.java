@@ -5,6 +5,7 @@ import android.support.v4.util.Pair;
 
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
+import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
 import java.util.List;
 
@@ -15,7 +16,8 @@ import java.util.List;
 
 public class Editor implements
         MeasurementsFragment.MeasurementsCommandsListener,
-        GalleryFragment.GalleryFragmentCommandsListener {
+        GalleryFragment.GalleryFragmentCommandsListener,
+        PhotoFragment.PhotoFragmentCommandsListener {
 
     public Editor() {
 
@@ -64,5 +66,10 @@ public class Editor implements
     @Override
     public List<Pair<String, Drawable>> getPhotos() {
         return null;
+    }
+
+    @Override
+    public void onAddPhotoMeasurement() {
+
     }
 }
