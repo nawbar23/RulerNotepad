@@ -1,6 +1,7 @@
 package com.nawbar.rulernotepad;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -14,13 +15,11 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
-import com.nawbar.rulernotepad.fragments.SettingsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,7 +84,8 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            mViewPager.setCurrentItem(0, false);
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.action_about) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(R.string.action_about)
@@ -117,12 +117,10 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new PhotoFragment();
-                case 1:
                     return new MeasurementsFragment();
-                case 2:
+                case 1:
                     return new GalleryFragment();
-                case 3:
+                case 2:
                     return new PhotoFragment();
                 default:
                     return null;
@@ -131,19 +129,17 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 4;
+            return 3;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "settings";
-                case 1:
                     return "measurements";
-                case 2:
+                case 1:
                     return "gallery";
-                case 3:
+                case 2:
                     return "photo";
                 default:
                     return null;
