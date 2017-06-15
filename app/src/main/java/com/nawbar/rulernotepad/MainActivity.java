@@ -2,8 +2,6 @@ package com.nawbar.rulernotepad;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,30 +11,25 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
+import com.nawbar.rulernotepad.editor.Editor;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements
+        MeasurementsFragment.MeasurementsListener,
+        GalleryFragment.GalleryFragmentListener {
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
+    private static String TAG = MainActivity.class.getSimpleName();
+
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
+
+    private Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,14 +52,27 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //        });
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        editor = new Editor();
+    }
+
+    @Override
+    public void onGallerySelect(String name) {
+        Log.e(TAG, "onGallerySelect: " + name);
+    }
+
+    @Override
+    public MeasurementsFragment.MeasurementsCommandsListener getMeasurementsCommandsListener() {
+        return editor;
+    }
+
+    @Override
+    public void onPhotoSelect(String name) {
+        Log.e(TAG, "onPhotoSelect: " + name);
+    }
+
+    @Override
+    public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
+        return editor;
     }
 
     @Override
@@ -103,13 +109,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
 
-        public SectionsPagerAdapter(FragmentManager fm) {
+        SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
