@@ -34,6 +34,9 @@ public class MainActivity extends AppCompatActivity implements
 
     private Editor editor;
 
+    private String currentMeasurement;
+    private String currentPhoto;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +62,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onGallerySelect(String name) {
+    public void onMeasurementSelect(String name) {
         Log.e(TAG, "onGallerySelect: " + name);
+        currentMeasurement = name;
         mViewPager.setCurrentItem(1);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -73,12 +77,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onPhotoSelect(String name) {
         Log.e(TAG, "onPhotoSelect: " + name);
+        currentPhoto = name;
         mViewPager.setCurrentItem(2);
+    }
+
+    @Override
+    public String getCurrentMeasurement() {
+        return currentMeasurement;
     }
 
     @Override
     public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
         return editor;
+    }
+
+    @Override
+    public String getCurrentPhoto() {
+        return currentPhoto;
     }
 
     @Override

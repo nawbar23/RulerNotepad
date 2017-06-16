@@ -2,12 +2,16 @@ package com.nawbar.rulernotepad.editor;
 
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.Pair;
+import android.util.Log;
 
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -19,13 +23,18 @@ public class Editor implements
         GalleryFragment.GalleryFragmentCommandsListener,
         PhotoFragment.PhotoFragmentCommandsListener {
 
-    public Editor() {
+    private static String TAG = Editor.class.getSimpleName();
 
+    // <Measurement name, Photos<Pair<Photo name, Photo>>>
+    private Map<String, List<Pair<String, Drawable>>> parsed;
+
+    public Editor() {
+        parsed = new HashMap<>();
     }
 
     @Override
     public void onMeasurementAdd(String name) {
-
+        parsed.put(name, new ArrayList<Pair<String, Drawable>>());
     }
 
     @Override
@@ -40,7 +49,7 @@ public class Editor implements
 
     @Override
     public List<String> getMeasurements() {
-        return null;
+        return new ArrayList<>(parsed.keySet());
     }
 
     @Override
@@ -64,8 +73,13 @@ public class Editor implements
     }
 
     @Override
-    public List<Pair<String, Drawable>> getPhotos() {
-        return null;
+    public List<Pair<String, Drawable>> getPhotos(String measurement) {
+        List<Pair<String, Drawable>> result = parsed.get(measurement);
+        if (result == null) {
+            Log.e(TAG, "Cashing measurements: " + measurement);
+            result = new ArrayList<>();
+        }
+        return result;
     }
 
     @Override

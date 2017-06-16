@@ -3,7 +3,6 @@ package com.nawbar.rulernotepad.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,7 +41,6 @@ public class PhotoFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.photo_fragment, container, false);
 
         setupButtons(rootView);
-
         return rootView;
     }
 
@@ -63,6 +61,7 @@ public class PhotoFragment extends Fragment {
     }
 
     public interface PhotoFragmentListener {
+        String getCurrentPhoto();
         PhotoFragmentCommandsListener getPhotoCommandsListener();
     }
 

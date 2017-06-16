@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ListFragment;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -16,13 +15,16 @@ import android.widget.ArrayAdapter;
 
 import com.nawbar.rulernotepad.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Bartosz Nawrot on 2017-06-15.
  */
 
-public class GalleryFragment extends ListFragment implements AdapterView.OnItemClickListener {
+public class GalleryFragment extends ListFragment implements
+        AdapterView.OnItemClickListener,
+        AdapterView.OnItemLongClickListener {
 
     private static String TAG = MeasurementsFragment.class.getSimpleName();
 
@@ -45,10 +47,10 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
 
         setupButtons(rootView);
-
         return rootView;
     }
 
@@ -57,17 +59,27 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
         Log.e(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
-//        ArrayAdapter adapter = ArrayAdapter.createFromResource(getActivity(),
-//                R.array.Planets, android.R.layout.simple_list_item_1);
-//        setListAdapter(adapter);
-//        Log.e(MeasurementsFragment.class.getSimpleName(), "size: " + adapter.getCount());
+        ArrayList<String> list = new ArrayList<>();
+        List<Pair<String, Drawable>> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
+        for (Pair<String, Drawable> p : photos) {
+            list.add(p.first);
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, list);
+        setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
+        getListView().setOnItemLongClickListener(this);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Log.e(TAG, "onItemLongClick, position: " + position);
+        return false;
     }
 
     private void setupButtons(View view) {
@@ -99,6 +111,7 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
 
     public interface GalleryFragmentListener {
         void onPhotoSelect(String name);
+        String getCurrentMeasurement();
         GalleryFragmentCommandsListener getGalleryCommandsListener();
     }
 
@@ -107,6 +120,6 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
         void onPhotoRemove(String item);
         void onPhotoEdit(String item);
         void onPhotoRename(String item);
-        List<Pair<String, Drawable>> getPhotos();
+        List<Pair<String, Drawable>> getPhotos(String measurement);
     }
 }
