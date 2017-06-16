@@ -47,13 +47,7 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onPhotoSelect("bbb");
-            }
-        });
+        setupButtons(rootView);
 
         return rootView;
     }
@@ -74,6 +68,33 @@ public class GalleryFragment extends ListFragment implements AdapterView.OnItemC
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
+    }
+
+    private void setupButtons(View view) {
+        FloatingActionButton fab_email = (FloatingActionButton) view.findViewById(R.id.fab_email);
+        fab_email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_email");
+            }
+        });
+
+        FloatingActionButton fab_photo = (FloatingActionButton) view.findViewById(R.id.fab_photo);
+        fab_photo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_photo");
+                listener.onPhotoSelect("bbb");
+            }
+        });
+
+        FloatingActionButton fab_remove = (FloatingActionButton) view.findViewById(R.id.fab_remove);
+        fab_remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_remove");
+            }
+        });
     }
 
     public interface GalleryFragmentListener {

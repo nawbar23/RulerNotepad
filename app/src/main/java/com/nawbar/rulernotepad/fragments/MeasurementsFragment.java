@@ -46,13 +46,8 @@ public class MeasurementsFragment extends ListFragment implements AdapterView.On
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.measurments_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onGallerySelect("aaa");
-            }
-        });
+        setupButtons(rootView);
+
 
         return rootView;
     }
@@ -71,6 +66,33 @@ public class MeasurementsFragment extends ListFragment implements AdapterView.On
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
+    }
+
+    private void setupButtons(View view) {
+        FloatingActionButton fab_email = (FloatingActionButton) view.findViewById(R.id.fab_email);
+        fab_email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_email");
+            }
+        });
+
+        FloatingActionButton fab_add = (FloatingActionButton) view.findViewById(R.id.fab_add);
+        fab_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_add");
+                listener.onGallerySelect("aaa");
+            }
+        });
+
+        FloatingActionButton fab_remove = (FloatingActionButton) view.findViewById(R.id.fab_remove);
+        fab_remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_remove");
+            }
+        });
     }
 
     public interface MeasurementsListener {

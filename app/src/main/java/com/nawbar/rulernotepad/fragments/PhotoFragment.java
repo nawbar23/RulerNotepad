@@ -41,14 +41,7 @@ public class PhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.photo_fragment, container, false);
 
-        FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        setupButtons(rootView);
 
         return rootView;
     }
@@ -57,6 +50,16 @@ public class PhotoFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.e(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void setupButtons(View view) {
+        FloatingActionButton fab_revert = (FloatingActionButton) view.findViewById(R.id.fab_revert);
+        fab_revert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_revert");
+            }
+        });
     }
 
     public interface PhotoFragmentListener {
