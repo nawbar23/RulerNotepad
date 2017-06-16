@@ -1,5 +1,6 @@
 package com.nawbar.rulernotepad.editor;
 
+import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -26,7 +27,7 @@ public class Editor implements
     private static String TAG = Editor.class.getSimpleName();
 
     // <Measurement name, Photos<Pair<Photo name, Photo>>>
-    private Map<String, List<Pair<String, Drawable>>> parsed;
+    private Map<String, List<Pair<String, Bitmap>>> parsed;
 
     public Editor() {
         parsed = new HashMap<>();
@@ -34,7 +35,7 @@ public class Editor implements
 
     @Override
     public void onMeasurementAdd(String name) {
-        parsed.put(name, new ArrayList<Pair<String, Drawable>>());
+        parsed.put(name, new ArrayList<Pair<String, Bitmap>>());
     }
 
     @Override
@@ -53,8 +54,8 @@ public class Editor implements
     }
 
     @Override
-    public void onPhotoAdd(String item) {
-
+    public void onPhotoAdd(String measurement, String item, Bitmap photo) {
+        parsed.get(measurement).add(new Pair<>(item, photo));
     }
 
     @Override
@@ -73,8 +74,8 @@ public class Editor implements
     }
 
     @Override
-    public List<Pair<String, Drawable>> getPhotos(String measurement) {
-        List<Pair<String, Drawable>> result = parsed.get(measurement);
+    public List<Pair<String, Bitmap>> getPhotos(String measurement) {
+        List<Pair<String, Bitmap>> result = parsed.get(measurement);
         if (result == null) {
             Log.e(TAG, "Cashing measurements: " + measurement);
             result = new ArrayList<>();

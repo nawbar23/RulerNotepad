@@ -2,6 +2,7 @@ package com.nawbar.rulernotepad;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -28,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements
         PhotoFragment.PhotoFragmentListener {
 
     private static String TAG = MainActivity.class.getSimpleName();
+
+    public static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
