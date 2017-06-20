@@ -25,6 +25,7 @@ import com.nawbar.rulernotepad.R;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -36,7 +37,9 @@ public class GalleryFragment extends ListFragment implements
         AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
 
-    private static final String TAG = MeasurementsFragment.class.getSimpleName();
+    private static final String TAG = GalleryFragment.class.getSimpleName();
+
+    private static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private GalleryFragmentListener listener;
     private GalleryFragmentCommandsListener commandsListener;
@@ -73,12 +76,8 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
 
-        ArrayList<String> list = new ArrayList<>();
-        List<Pair<String, Bitmap>> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
-        for (Pair<String, Bitmap> p : photos) {
-            list.add(p.first);
-        }
-        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, list);
+        Map<String, Bitmap> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
+        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, new ArrayList<>(photos.keySet()));
         setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
@@ -125,7 +124,7 @@ public class GalleryFragment extends ListFragment implements
                                     Log.e(TAG, "Starting camera for name: " + currentPhoto);
                                     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                                     if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                                        startActivityForResult(takePictureIntent, MainActivity.REQUEST_IMAGE_CAPTURE);
+                                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
                                     }
                                 }
                             }
@@ -146,11 +145,11 @@ public class GalleryFragment extends ListFragment implements
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == MainActivity.REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Log.e(TAG, "onActivityResult with photo: " + currentPhoto);
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            commandsListener.onPhotoAdd(listener.getCurrentMeasurement(), currentPhoto, imageBitmap);
+            commandsListener.onPhotoAdd(new Pair<>(listener.getCurrentMeasurement(), currentPhoto), imageBitmap);
             adapter.add(currentPhoto);
             listener.onPhotoSelect(currentPhoto);
         }
@@ -163,10 +162,10 @@ public class GalleryFragment extends ListFragment implements
     }
 
     public interface GalleryFragmentCommandsListener {
-        void onPhotoAdd(String measurement, String item, Bitmap photo);
+        void onPhotoAdd(Pair<String, String> name, Bitmap photo);
         void onPhotoRemove(String item);
         void onPhotoEdit(String item);
         void onPhotoRename(String item);
-        List<Pair<String, Bitmap>> getPhotos(String measurement);
+        Map<String, Bitmap> getPhotos(String measurement);
     }
 }

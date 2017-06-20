@@ -1,13 +1,17 @@
 package com.nawbar.rulernotepad.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.nawbar.rulernotepad.R;
 
@@ -21,6 +25,8 @@ public class PhotoFragment extends Fragment {
 
     private PhotoFragmentListener listener;
     private PhotoFragmentCommandsListener commandsListener;
+
+    private ImageView photoView;
 
     @Override
     public void onAttach(Context context) {
@@ -38,7 +44,11 @@ public class PhotoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.photo_fragment, container, false);
+
+        photoView = (ImageView) rootView.findViewById(R.id.photo_view);
+        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto()));
 
         setupButtons(rootView);
         return rootView;
@@ -48,6 +58,7 @@ public class PhotoFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.e(TAG, "onActivityCreated");
         super.onActivityCreated(savedInstanceState);
+
     }
 
     private void setupButtons(View view) {
@@ -61,11 +72,12 @@ public class PhotoFragment extends Fragment {
     }
 
     public interface PhotoFragmentListener {
-        String getCurrentPhoto();
+        Pair<String, String> getCurrentPhoto();
         PhotoFragmentCommandsListener getPhotoCommandsListener();
     }
 
     public interface PhotoFragmentCommandsListener {
+        Bitmap getPhoto(Pair<String, String> name);
         void onAddPhotoMeasurement();
     }
 }
