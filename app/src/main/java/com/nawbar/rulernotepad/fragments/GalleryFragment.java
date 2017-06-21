@@ -22,6 +22,7 @@ import android.widget.EditText;
 
 import com.nawbar.rulernotepad.MainActivity;
 import com.nawbar.rulernotepad.R;
+import com.nawbar.rulernotepad.editor.Photo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,22 +67,27 @@ public class GalleryFragment extends ListFragment implements
                              Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
-
         setupButtons(rootView);
         return rootView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        Log.e(TAG, "onActivityCreated");
-        super.onActivityCreated(savedInstanceState);
+    public void onStart() {
+        Log.e(TAG, "onStart");
+        super.onStart();
 
-        Map<String, Bitmap> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
+        Map<String, Photo> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
         adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, new ArrayList<>(photos.keySet()));
         setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
     }
 
     @Override
@@ -149,7 +155,10 @@ public class GalleryFragment extends ListFragment implements
             Log.e(TAG, "onActivityResult with photo: " + currentPhoto);
             Bundle extras = data.getExtras();
             Bitmap imageBitmap = (Bitmap) extras.get("data");
-            commandsListener.onPhotoAdd(new Pair<>(listener.getCurrentMeasurement(), currentPhoto), imageBitmap);
+            Photo toAdd = new Photo();
+            toAdd.setMini(imageBitmap);
+            toAdd.setFull(imageBitmap);
+            commandsListener.onPhotoAdd(new Pair<>(listener.getCurrentMeasurement(), currentPhoto), toAdd);
             adapter.add(currentPhoto);
             listener.onPhotoSelect(currentPhoto);
         }
@@ -162,10 +171,10 @@ public class GalleryFragment extends ListFragment implements
     }
 
     public interface GalleryFragmentCommandsListener {
-        void onPhotoAdd(Pair<String, String> name, Bitmap photo);
+        void onPhotoAdd(Pair<String, String> name, Photo photo);
         void onPhotoRemove(String item);
         void onPhotoEdit(String item);
         void onPhotoRename(String item);
-        Map<String, Bitmap> getPhotos(String measurement);
+        Map<String, Photo> getPhotos(String measurement);
     }
 }

@@ -1,8 +1,6 @@
 package com.nawbar.rulernotepad.fragments;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -14,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.nawbar.rulernotepad.R;
+import com.nawbar.rulernotepad.editor.Photo;
 
 /**
  * Created by Bartosz Nawrot on 2017-06-15.
@@ -46,19 +45,22 @@ public class PhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.photo_fragment, container, false);
-
         photoView = (ImageView) rootView.findViewById(R.id.photo_view);
-        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto()));
-
         setupButtons(rootView);
         return rootView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        Log.e(TAG, "onActivityCreated");
-        super.onActivityCreated(savedInstanceState);
+    public void onStart() {
+        Log.e(TAG, "onStart");
+        super.onStart();
+        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto()).getFull());
+    }
 
+    @Override
+    public void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
     }
 
     private void setupButtons(View view) {
@@ -77,7 +79,7 @@ public class PhotoFragment extends Fragment {
     }
 
     public interface PhotoFragmentCommandsListener {
-        Bitmap getPhoto(Pair<String, String> name);
+        Photo getPhoto(Pair<String, String> name);
         void onAddPhotoMeasurement();
     }
 }

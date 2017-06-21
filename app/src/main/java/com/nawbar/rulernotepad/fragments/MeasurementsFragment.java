@@ -55,15 +55,14 @@ public class MeasurementsFragment extends ListFragment implements
                              Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.measurments_fragment, container, false);
-
         setupButtons(rootView);
         return rootView;
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        Log.e(TAG, "onActivityCreated");
-        super.onActivityCreated(savedInstanceState);
+    public void onStart() {
+        Log.e(TAG, "onStart");
+        super.onStart();
 
         adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1,
                 commandsListener.getMeasurements());
@@ -71,6 +70,12 @@ public class MeasurementsFragment extends ListFragment implements
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+    }
+
+    @Override
+    public void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
     }
 
     @Override

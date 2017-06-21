@@ -1,6 +1,5 @@
 package com.nawbar.rulernotepad.editor;
 
-import android.graphics.Bitmap;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -27,7 +26,7 @@ public class Editor implements
     private static String TAG = Editor.class.getSimpleName();
 
     // <Measurement name, Photos<Pair<Photo name, Photo>>>
-    private Map<String, Map<String, Bitmap>> parsed;
+    private Map<String, Map<String, Photo>> parsed;
 
     public Editor() {
         parsed = new HashMap<>();
@@ -35,7 +34,7 @@ public class Editor implements
 
     @Override
     public void onMeasurementAdd(String name) {
-        parsed.put(name, new HashMap<String, Bitmap>());
+        parsed.put(name, new HashMap<String, Photo>());
     }
 
     @Override
@@ -54,7 +53,7 @@ public class Editor implements
     }
 
     @Override
-    public void onPhotoAdd(Pair<String, String> name, Bitmap photo) {
+    public void onPhotoAdd(Pair<String, String> name, Photo photo) {
         parsed.get(name.first).put(name.second, photo);
     }
 
@@ -74,8 +73,8 @@ public class Editor implements
     }
 
     @Override
-    public Map<String, Bitmap> getPhotos(String measurement) {
-        Map<String, Bitmap> result = parsed.get(measurement);
+    public Map<String, Photo> getPhotos(String measurement) {
+        Map<String, Photo> result = parsed.get(measurement);
         if (result == null) {
             Log.e(TAG, "Cashing measurements: " + measurement);
             result = Collections.emptyMap();
@@ -84,9 +83,9 @@ public class Editor implements
     }
 
     @Override
-    public Bitmap getPhoto(Pair<String, String> name)
+    public Photo getPhoto(Pair<String, String> name)
     {
-        Map<String, Bitmap> gallery = parsed.get(name.first);
+        Map<String, Photo> gallery = parsed.get(name.first);
         if (gallery == null) {
             Log.e(TAG, "Cashing measurements: " + name.first);
             gallery = Collections.emptyMap();

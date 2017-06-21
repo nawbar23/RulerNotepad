@@ -2,22 +2,18 @@ package com.nawbar.rulernotepad;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
 
 import com.nawbar.rulernotepad.editor.Editor;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
@@ -31,8 +27,8 @@ public class MainActivity extends AppCompatActivity implements
 
     private static String TAG = MainActivity.class.getSimpleName();
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
+    private Fragment[] fragments;
+    private int currentPosition;
 
     private Editor editor;
 
@@ -44,31 +40,25 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        editor = new Editor();
+
+        fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
+        currentPosition = 0;
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
-        editor = new Editor();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.add(R.id.container, fragments[currentPosition]);
+        ft.commit();
     }
 
     @Override
     public void onMeasurementSelect(String name) {
         Log.e(TAG, "onGallerySelect: " + name);
         currentMeasurement = name;
-        mViewPager.setCurrentItem(1);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        currentPosition = 1;
+        moveToFragment();
     }
 
     @Override
@@ -80,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements
     public void onPhotoSelect(String name) {
         Log.e(TAG, "onPhotoSelect: " + name);
         currentPhoto = name;
-        mViewPager.setCurrentItem(2);
+        currentPosition = 2;
+        moveToFragment();
     }
 
     @Override
@@ -133,52 +124,37 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case android.R.id.home:
-                mViewPager.setCurrentItem(mViewPager.getCurrentItem() - 1);
-                if (mViewPager.getCurrentItem() == 0) {
-                    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-                }
+                onPopFragment();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
+    @Override
+    public void onBackPressed() {
+        if (currentPosition > 0) {
+            onPopFragment();
+        } else {
+            super.onBackPressed();
         }
+    }
 
-        @Override
-        public Fragment getItem(int position) {
-            switch (position) {
-                case 0:
-                    return new MeasurementsFragment();
-                case 1:
-                    return new GalleryFragment();
-                case 2:
-                    return new PhotoFragment();
-                default:
-                    return null;
-            }
-        }
+    private void moveToFragment() {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.enter, R.anim.exit);
+        ft.replace(R.id.container, fragments[currentPosition]);
+        ft.commit();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
 
-        @Override
-        public int getCount() {
-            return 3;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return "measurements";
-                case 1:
-                    return "gallery";
-                case 2:
-                    return "photo";
-                default:
-                    return null;
-            }
+    private void onPopFragment() {
+        currentPosition--;
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.setCustomAnimations(R.anim.pop_enter, R.anim.pop_exit);
+        ft.replace(R.id.container, fragments[currentPosition]);
+        ft.commit();
+        if (currentPosition == 0) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
     }
 }
