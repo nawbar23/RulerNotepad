@@ -3,12 +3,18 @@ package com.nawbar.rulernotepad.fragments;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.FileProvider;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
@@ -24,7 +30,11 @@ import com.nawbar.rulernotepad.MainActivity;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Photo;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -128,10 +138,7 @@ public class GalleryFragment extends ListFragment implements
                                 currentPhoto = nameInput.getText().toString();
                                 if (!currentPhoto.isEmpty()) {
                                     Log.e(TAG, "Starting camera for name: " + currentPhoto);
-                                    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                    if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-                                        startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-                                    }
+                                    dispatchTakePictureIntent();
                                 }
                             }
                         })
@@ -149,16 +156,80 @@ public class GalleryFragment extends ListFragment implements
         });
     }
 
+    String mCurrentPhotoPath;
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getActivity().getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        mCurrentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
+
+    private void dispatchTakePictureIntent() {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Ensure that there's a camera activity to handle the intent
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            // Create the File where the photo should go
+            File photoFile = null;
+            try {
+                photoFile = createImageFile();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                Log.e(TAG, ex.getMessage());
+                return;
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                Uri photoURI = FileProvider.getUriForFile(getActivity(),
+                        "com.example.android.fileprovider",
+                        photoFile);
+                List<ResolveInfo> resInfoList = getActivity().getPackageManager().queryIntentActivities(takePictureIntent, PackageManager.MATCH_DEFAULT_ONLY);
+                for (ResolveInfo resolveInfo : resInfoList) {
+                    String packageName = resolveInfo.activityInfo.packageName;
+                    getActivity().grantUriPermission(packageName, photoURI, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                }
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        }
+    }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Log.e(TAG, "onActivityResult with photo: " + currentPhoto);
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
+            Log.e(TAG, "onActivityResult with photo: " + currentPhoto + " path: " + mCurrentPhotoPath);
             Photo toAdd = new Photo();
-            toAdd.setMini(imageBitmap);
-            toAdd.setFull(imageBitmap);
+
+            toAdd.setFull(BitmapFactory.decodeFile(mCurrentPhotoPath));
+
+            // Get the dimensions of the View
+            int targetW = 100;
+            int targetH = 100;
+            int photoW = toAdd.getFull().getWidth();
+            int photoH = toAdd.getFull().getHeight();
+
+            // Determine how much to scale down the image
+            int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+            // Decode the image file into a Bitmap sized to fill the View
+            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+            bmOptions.inJustDecodeBounds = false;
+            bmOptions.inSampleSize = scaleFactor;
+
+            toAdd.setMini(BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions));
             commandsListener.onPhotoAdd(new Pair<>(listener.getCurrentMeasurement(), currentPhoto), toAdd);
+
+            // TODO delete file saved in path for memory performance
+
             adapter.add(currentPhoto);
             listener.onPhotoSelect(currentPhoto);
         }
