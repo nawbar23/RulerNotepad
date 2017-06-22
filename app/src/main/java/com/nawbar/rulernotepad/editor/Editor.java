@@ -1,17 +1,11 @@
 package com.nawbar.rulernotepad.editor;
 
-import android.support.v4.util.Pair;
-import android.util.Log;
-
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -25,16 +19,24 @@ public class Editor implements
 
     private static String TAG = Editor.class.getSimpleName();
 
-    // <Measurement name, Photos<Pair<Photo name, Photo>>>
-    private Map<String, Map<String, Photo>> parsed;
+    private List<Measurement> parsed;
 
     public Editor() {
-        parsed = new HashMap<>();
+        parsed = new ArrayList<>();
+    }
+
+    public Measurement getMeasurement(String name) {
+        for (Measurement m : parsed) {
+            if (m.getName().equals(name)) {
+                return m;
+            }
+        }
+        return null;
     }
 
     @Override
     public void onMeasurementAdd(String name) {
-        parsed.put(name, new HashMap<String, Photo>());
+        parsed.add(new Measurement(name));
     }
 
     @Override
@@ -48,13 +50,13 @@ public class Editor implements
     }
 
     @Override
-    public List<String> getMeasurements() {
-        return new ArrayList<>(parsed.keySet());
+    public List<Measurement> getMeasurements() {
+        return parsed;
     }
 
     @Override
-    public void onPhotoAdd(Pair<String, String> name, Photo photo) {
-        parsed.get(name.first).put(name.second, photo);
+    public void onPhotoAdd(String measurementName, Photo photo) {
+        getMeasurement(measurementName).addPhoto(photo);
     }
 
     @Override
@@ -73,24 +75,14 @@ public class Editor implements
     }
 
     @Override
-    public Map<String, Photo> getPhotos(String measurement) {
-        Map<String, Photo> result = parsed.get(measurement);
-        if (result == null) {
-            Log.e(TAG, "Cashing measurements: " + measurement);
-            result = Collections.emptyMap();
-        }
-        return result;
+    public List<Photo> getPhotos(String measurementName) {
+        return getMeasurement(measurementName).getPhotos();
     }
 
     @Override
-    public Photo getPhoto(Pair<String, String> name)
+    public Photo getPhoto(String measurementName, String photoName)
     {
-        Map<String, Photo> gallery = parsed.get(name.first);
-        if (gallery == null) {
-            Log.e(TAG, "Cashing measurements: " + name.first);
-            gallery = Collections.emptyMap();
-        }
-        return gallery.get(name.second);
+        return getMeasurement(measurementName).getPhoto(photoName);
     }
 
     @Override

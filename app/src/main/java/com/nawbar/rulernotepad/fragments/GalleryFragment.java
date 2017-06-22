@@ -28,6 +28,8 @@ import android.widget.EditText;
 
 import com.nawbar.rulernotepad.MainActivity;
 import com.nawbar.rulernotepad.R;
+import com.nawbar.rulernotepad.adapters.GalleryAdapter;
+import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
 
 import java.io.File;
@@ -55,7 +57,7 @@ public class GalleryFragment extends ListFragment implements
     private GalleryFragmentListener listener;
     private GalleryFragmentCommandsListener commandsListener;
 
-    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<Photo> adapter;
 
     private String currentPhoto;
 
@@ -86,8 +88,7 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        Map<String, Photo> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
-        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1, new ArrayList<>(photos.keySet()));
+        adapter = new GalleryAdapter(getActivity(), commandsListener.getPhotos(listener.getCurrentMeasurement()));
         setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
@@ -108,7 +109,7 @@ public class GalleryFragment extends ListFragment implements
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemLongClick, position: " + position);
-        listener.onPhotoSelect((String)getListAdapter().getItem(position));
+        listener.onPhotoSelect(adapter.getItem(position).getName());
         return false;
     }
 
@@ -207,7 +208,7 @@ public class GalleryFragment extends ListFragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Log.e(TAG, "onActivityResult with photo: " + currentPhoto + " path: " + mCurrentPhotoPath);
-            Photo toAdd = new Photo();
+            Photo toAdd = new Photo(currentPhoto);
 
             toAdd.setFull(BitmapFactory.decodeFile(mCurrentPhotoPath));
 
@@ -226,11 +227,10 @@ public class GalleryFragment extends ListFragment implements
             bmOptions.inSampleSize = scaleFactor;
 
             toAdd.setMini(BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions));
-            commandsListener.onPhotoAdd(new Pair<>(listener.getCurrentMeasurement(), currentPhoto), toAdd);
+            commandsListener.onPhotoAdd(listener.getCurrentMeasurement(), toAdd);
 
             // TODO delete file saved in path for memory performance
 
-            adapter.add(currentPhoto);
             listener.onPhotoSelect(currentPhoto);
         }
     }
@@ -242,10 +242,10 @@ public class GalleryFragment extends ListFragment implements
     }
 
     public interface GalleryFragmentCommandsListener {
-        void onPhotoAdd(Pair<String, String> name, Photo photo);
+        void onPhotoAdd(String measurementName, Photo photo);
         void onPhotoRemove(String item);
         void onPhotoEdit(String item);
         void onPhotoRename(String item);
-        Map<String, Photo> getPhotos(String measurement);
+        List<Photo> getPhotos(String measurement);
     }
 }

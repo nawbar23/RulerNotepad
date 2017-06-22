@@ -10,12 +10,22 @@ import java.util.List;
  */
 
 public class Photo {
+    private String name;
     private Bitmap mini;
     private Bitmap full;
     private List<Arrow> arrows;
 
-    public Photo() {
+    public Photo(String name) {
+        this.name = name;
         arrows = new ArrayList<>();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Bitmap getMini() {

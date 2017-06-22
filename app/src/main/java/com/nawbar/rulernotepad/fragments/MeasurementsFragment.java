@@ -2,11 +2,9 @@ package com.nawbar.rulernotepad.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.Log;
@@ -18,8 +16,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 import com.nawbar.rulernotepad.R;
+import com.nawbar.rulernotepad.editor.Measurement;
+import com.nawbar.rulernotepad.adapters.MeasurementsAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public class MeasurementsFragment extends ListFragment implements
     private MeasurementsListener listener;
     private MeasurementsCommandsListener commandsListener;
 
-    private ArrayAdapter<String> adapter;
+    private ArrayAdapter<Measurement> adapter;
 
     @Override
     public void onAttach(Context context) {
@@ -64,8 +63,7 @@ public class MeasurementsFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_list_item_1,
-                commandsListener.getMeasurements());
+        adapter = new MeasurementsAdapter(getActivity(), commandsListener.getMeasurements());
         setListAdapter(adapter);
 
         getListView().setOnItemClickListener(this);
@@ -86,7 +84,7 @@ public class MeasurementsFragment extends ListFragment implements
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemLongClick, position: " + position);
-        listener.onMeasurementSelect((String)getListAdapter().getItem(position));
+        listener.onMeasurementSelect(adapter.getItem(position).getName());
         return true;
     }
 
@@ -117,7 +115,6 @@ public class MeasurementsFragment extends ListFragment implements
                                 if (!newName.isEmpty()) {
                                     Log.e(TAG, "New name for measurement: " + newName);
                                     commandsListener.onMeasurementAdd(newName);
-                                    adapter.add(newName);
                                     listener.onMeasurementSelect(newName);
                                 }
                             }
@@ -145,6 +142,6 @@ public class MeasurementsFragment extends ListFragment implements
         void onMeasurementAdd(String name);
         void onMeasurementRemove(String name);
         void onMeasurementSend(String name);
-        List<String> getMeasurements();
+        List<Measurement> getMeasurements();
     }
 }

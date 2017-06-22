@@ -56,7 +56,8 @@ public class PhotoFragment extends Fragment {
     public void onStart() {
         Log.e(TAG, "onStart");
         super.onStart();
-        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto()).getFull());
+        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto().first,
+                listener.getCurrentPhoto().second).getFull());
     }
 
     @Override
@@ -81,7 +82,7 @@ public class PhotoFragment extends Fragment {
     }
 
     public interface PhotoFragmentCommandsListener {
-        Photo getPhoto(Pair<String, String> name);
+        Photo getPhoto(String measurementName, String photoName);
         void onAddPhotoMeasurement();
     }
 }
