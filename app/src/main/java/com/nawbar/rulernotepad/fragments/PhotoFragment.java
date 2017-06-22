@@ -9,10 +9,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.nawbar.rulernotepad.PhotoNotepadView;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Photo;
 
@@ -27,7 +29,7 @@ public class PhotoFragment extends Fragment {
     private PhotoFragmentListener listener;
     private PhotoFragmentCommandsListener commandsListener;
 
-    private ImageView photoView;
+    private PhotoNotepadView photoView;
 
     @Override
     public void onAttach(Context context) {
@@ -47,7 +49,7 @@ public class PhotoFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.photo_fragment, container, false);
-        photoView = (ImageView) rootView.findViewById(R.id.photo_view);
+        photoView = (PhotoNotepadView) rootView.findViewById(R.id.photo_view);
         setupButtons(rootView);
         return rootView;
     }

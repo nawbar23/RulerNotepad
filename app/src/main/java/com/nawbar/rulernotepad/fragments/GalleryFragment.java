@@ -186,7 +186,6 @@ public class GalleryFragment extends ListFragment implements
             } catch (IOException ex) {
                 ex.printStackTrace();
                 Log.e(TAG, ex.getMessage());
-                return;
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
