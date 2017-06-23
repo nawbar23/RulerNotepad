@@ -1,7 +1,10 @@
 package com.nawbar.rulernotepad.editor;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by nawba on 22.06.2017.
@@ -14,6 +17,7 @@ public class Measurement {
 
     public Measurement(String name) {
         this.name = name;
+        this.date = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(new Date());
         photos = new ArrayList<>();
     }
 

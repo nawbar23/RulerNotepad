@@ -32,8 +32,10 @@ public class MeasurementsAdapter extends ArrayAdapter<Measurement> {
         }
         // Lookup view for data population
         TextView name = (TextView) convertView.findViewById(R.id.name);
+        TextView date = (TextView) convertView.findViewById(R.id.date);
         // Populate the data into the template view using the data object
         name.setText(measurement.getName());
+        date.setText(measurement.getDate());
         // Return the completed view to render on screen
         return convertView;
     }
