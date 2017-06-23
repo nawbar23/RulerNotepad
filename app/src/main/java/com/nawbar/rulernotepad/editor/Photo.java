@@ -51,4 +51,14 @@ public class Photo {
     public void setArrows(List<Arrow> arrows) {
         this.arrows = arrows;
     }
+
+    public void addArrow(Arrow arrow) {
+        arrows.add(arrow);
+    }
+
+    public void popBackArrow() {
+        if (arrows.size() > 0) {
+            arrows.remove(arrows.size() - 1);
+        }
+    }
 }

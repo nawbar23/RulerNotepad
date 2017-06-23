@@ -1,12 +1,14 @@
 package com.nawbar.rulernotepad.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -58,8 +60,8 @@ public class PhotoFragment extends Fragment {
     public void onStart() {
         Log.e(TAG, "onStart");
         super.onStart();
-        photoView.setImageBitmap(commandsListener.getPhoto(listener.getCurrentPhoto().first,
-                listener.getCurrentPhoto().second).getFull());
+        photoView.setPhoto(commandsListener.getPhoto(listener.getCurrentPhoto().first,
+                listener.getCurrentPhoto().second));
     }
 
     @Override
@@ -74,6 +76,19 @@ public class PhotoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_revert");
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Cofnij!")
+                        .setCancelable(true)
+                        .setMessage("Napewno chcesz usunąc ostatni wymiar?")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.e(TAG, "fab_revert accepted");
+                                photoView.onRevert();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setIcon(android.R.drawable.ic_dialog_info)
+                        .show();
             }
         });
     }

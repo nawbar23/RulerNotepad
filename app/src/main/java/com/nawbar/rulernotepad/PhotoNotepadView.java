@@ -4,10 +4,15 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PointF;
+import android.provider.Settings;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+
+import com.nawbar.rulernotepad.editor.Arrow;
+import com.nawbar.rulernotepad.editor.Photo;
 
 /**
  * Created by nawba on 23.06.2017.
@@ -17,6 +22,15 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         implements View.OnTouchListener {
 
     private static String TAG = PhotoNotepadView.class.getSimpleName();
+    private static long MIN_REDRAW_TIMEOUT = 50; // [ms], 20Hz
+
+    private Photo photo;
+
+    private Arrow currentDrawing;
+
+    private Paint linePaint;
+
+    private long lastRedraw;
 
     public PhotoNotepadView(Context context) {
         super(context);
@@ -33,26 +47,42 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         initialize();
     }
 
+    public void setPhoto(Photo photo) {
+        this.photo = photo;
+        setImageBitmap(photo.getFull());
+    }
+
     private void initialize() {
+        linePaint = new Paint();
+        linePaint.setColor(Color.RED);
+        linePaint.setStrokeWidth(2);
+
+        currentDrawing = null;
+
         setOnTouchListener(this);
     }
 
-    float x1 = 0;
-    float y1 = 0;
-    float x2 = 0;
-    float y2 = 0;
-    boolean draw = false;
+    public void onRevert() {
+        photo.popBackArrow();
+        invalidate();
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Log.e(TAG, "onDraw, draw: " + draw);
+        Log.e(TAG, "onDraw");
         super.onDraw(canvas);
-        if (draw) {
-            Paint p = new Paint();
-            p.setColor(Color.RED);
-            p.setStrokeWidth(2);
-            canvas.drawLine(x1, y1, x2, y2, p);
+        lastRedraw = System.currentTimeMillis();
+        for (Arrow a : photo.getArrows()) {
+            drawArrow(a, canvas);
         }
+        if (currentDrawing != null) {
+            drawArrow(currentDrawing, canvas);
+        }
+    }
+
+    private void drawArrow(Arrow arrow, Canvas canvas) {
+        canvas.drawLine(arrow.getStart().x, arrow.getStart().y,
+                arrow.getEnd().x, arrow.getEnd().y, linePaint);
     }
 
     @Override
@@ -60,25 +90,28 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         Log.e(TAG, event.toString());
         float x = event.getX();
         float y = event.getY();
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                x1 = x;
-                y1 = y;
+                currentDrawing = new Arrow(new PointF(x, y), new PointF(x, y));
                 break;
             case MotionEvent.ACTION_MOVE:
-                x2 = x;
-                y2 = y;
-                draw = true;
-                invalidate();
+                currentDrawing.getEnd().x = x;
+                currentDrawing.getEnd().y = y;
+                if (isRedrawTimeout()) invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                x2 = x;
-                y2 = y;
-                draw = true;
+                currentDrawing.getEnd().x = x;
+                currentDrawing.getEnd().y = y;
+                photo.addArrow(currentDrawing);
+                currentDrawing = null;
                 invalidate();
                 break;
         }
         return true;
+    }
+
+    boolean isRedrawTimeout() {
+        Log.e(TAG, "isRedrawTimeout: " + (System.currentTimeMillis() - lastRedraw));
+        return (System.currentTimeMillis() - lastRedraw) > MIN_REDRAW_TIMEOUT;
     }
 }
