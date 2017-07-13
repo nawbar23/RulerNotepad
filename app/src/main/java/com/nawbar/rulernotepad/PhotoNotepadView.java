@@ -1,15 +1,20 @@
 package com.nawbar.rulernotepad;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.graphics.PointF;
 import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 
 import com.nawbar.rulernotepad.editor.Arrow;
 import com.nawbar.rulernotepad.editor.Photo;
@@ -73,16 +78,54 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         super.onDraw(canvas);
         lastRedraw = System.currentTimeMillis();
         for (Arrow a : photo.getArrows()) {
-            drawArrow(a, canvas);
+            drawArrow(a, canvas, true);
         }
         if (currentDrawing != null) {
-            drawArrow(currentDrawing, canvas);
+            drawArrow(currentDrawing, canvas, false);
         }
     }
 
-    private void drawArrow(Arrow arrow, Canvas canvas) {
+    private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1) {
+        linePaint.setStyle(Paint.Style.FILL);
+
+        float deltaX = x1 - x0;
+        float deltaY = y1 - y0;
+        float frac = (float) 0.05;
+
+        float point_x_1 = x0 + ((1 - frac) * deltaX + frac * deltaY);
+        float point_y_1 = y0 + ((1 - frac) * deltaY - frac * deltaX);
+
+        float point_x_3 = x0 + ((1 - frac) * deltaX - frac * deltaY);
+        float point_y_3 = y0 + ((1 - frac) * deltaY + frac * deltaX);
+
+        Path path = new Path();
+        path.setFillType(Path.FillType.EVEN_ODD);
+
+        path.moveTo(point_x_1, point_y_1);
+        path.lineTo(x1, y1);
+        path.lineTo(point_x_3, point_y_3);
+        path.lineTo(point_x_1, point_y_1);
+        path.lineTo(point_x_1, point_y_1);
+        path.close();
+
+        canvas.drawPath(path, linePaint);
+    }
+
+    private void drawMeasurement(Canvas canvas, Arrow arrow) {
+        linePaint.setTextSize(arrow.getLength()*0.1f);
+        canvas.drawText(String.valueOf(arrow.getMeasurement()), 10, 200, linePaint);
+    }
+
+    private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
         canvas.drawLine(arrow.getStart().x, arrow.getStart().y,
                 arrow.getEnd().x, arrow.getEnd().y, linePaint);
+        fillArrow(canvas, arrow.getStart().x, arrow.getStart().y,
+                arrow.getEnd().x, arrow.getEnd().y);
+        fillArrow(canvas, arrow.getEnd().x, arrow.getEnd().y,
+                arrow.getStart().x, arrow.getStart().y);
+        if (set) {
+            drawMeasurement(canvas, arrow);
+        }
     }
 
     @Override
@@ -102,12 +145,46 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             case MotionEvent.ACTION_UP:
                 currentDrawing.getEnd().x = x;
                 currentDrawing.getEnd().y = y;
-                photo.addArrow(currentDrawing);
+                addArrow(currentDrawing);
                 currentDrawing = null;
                 invalidate();
                 break;
         }
         return true;
+    }
+
+    private void addArrow(final Arrow arrow) {
+        if (arrow.isValid()) {
+            Log.e(TAG, "fab_revert");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            final EditText measurementInput = new EditText(getContext());
+            measurementInput.setInputType(InputType.TYPE_CLASS_NUMBER);
+            measurementInput.setHint("Jak długość w centymetrach ma ten wymiar?");
+            builder.setTitle("Zmierz dlugość")
+                    .setCancelable(false)
+                    .setView(measurementInput)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.e(TAG, "measurement added");
+                            Arrow a = new Arrow(arrow);
+                            if (!measurementInput.getText().toString().isEmpty()) {
+                                a.setMeasurement(Integer.valueOf(measurementInput.getText().toString()));
+                                photo.addArrow(a);
+                            }
+                        }
+                    })
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Zmierz dlugość")
+                    .setCancelable(true)
+                    .setMessage("aasdasdasd")
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        }
     }
 
     boolean isRedrawTimeout() {
