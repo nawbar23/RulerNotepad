@@ -61,6 +61,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         linePaint = new Paint();
         linePaint.setColor(Color.RED);
         linePaint.setStrokeWidth(2);
+        linePaint.setTextAlign(Paint.Align.CENTER);
 
         currentDrawing = null;
 
@@ -112,8 +113,11 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     private void drawMeasurement(Canvas canvas, Arrow arrow) {
-        linePaint.setTextSize(arrow.getLength()*0.1f);
-        canvas.drawText(String.valueOf(arrow.getMeasurement()), 10, 200, linePaint);
+        linePaint.setTextSize(arrow.getLength()*0.08f);
+        Path path = new Path();
+        path.moveTo(arrow.getStart().x, arrow.getStart().y);
+        path.lineTo(arrow.getEnd().x, arrow.getEnd().y);
+        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + " cm", path, 0, -arrow.getLength()*0.01f, linePaint);
     }
 
     private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
