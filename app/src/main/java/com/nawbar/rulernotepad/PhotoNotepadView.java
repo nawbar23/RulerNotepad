@@ -91,7 +91,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
         float deltaX = x1 - x0;
         float deltaY = y1 - y0;
-        float frac = (float) 0.05;
+        float frac = (float) 0.03;
 
         float point_x_1 = x0 + ((1 - frac) * deltaX + frac * deltaY);
         float point_y_1 = y0 + ((1 - frac) * deltaY - frac * deltaX);
@@ -117,7 +117,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         Path path = new Path();
         path.moveTo(arrow.getStart().x, arrow.getStart().y);
         path.lineTo(arrow.getEnd().x, arrow.getEnd().y);
-        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + " cm", path, 0, -arrow.getLength()*0.01f, linePaint);
+        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + "cm", path, 0, -arrow.getLength()*0.01f, linePaint);
     }
 
     private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
