@@ -95,13 +95,11 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
         float point_x_1 = x0 + ((1 - frac) * deltaX + frac * deltaY);
         float point_y_1 = y0 + ((1 - frac) * deltaY - frac * deltaX);
-
         float point_x_3 = x0 + ((1 - frac) * deltaX - frac * deltaY);
         float point_y_3 = y0 + ((1 - frac) * deltaY + frac * deltaX);
 
         Path path = new Path();
         path.setFillType(Path.FillType.EVEN_ODD);
-
         path.moveTo(point_x_1, point_y_1);
         path.lineTo(x1, y1);
         path.lineTo(point_x_3, point_y_3);
@@ -184,7 +182,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("Zmierz dlugość")
                     .setCancelable(true)
-                    .setMessage("aasdasdasd")
+                    .setMessage("Ten wymiar to chyba jakaś nieuwaga...")
                     .setNegativeButton(android.R.string.cancel, null)
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
