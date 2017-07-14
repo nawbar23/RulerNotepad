@@ -54,6 +54,6 @@ public class Arrow {
     }
 
     public boolean isValid() {
-        return getLength() > 20.0f;
+        return getLength() > 100.0f;
     }
 }

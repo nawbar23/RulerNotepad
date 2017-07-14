@@ -115,7 +115,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         Path path = new Path();
         path.moveTo(arrow.getStart().x, arrow.getStart().y);
         path.lineTo(arrow.getEnd().x, arrow.getEnd().y);
-        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + "cm", path, 0, -arrow.getLength()*0.01f, linePaint);
+        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + "mm", path, 0, -arrow.getLength()*0.01f, linePaint);
     }
 
     private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
@@ -161,7 +161,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final EditText measurementInput = new EditText(getContext());
             measurementInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            measurementInput.setHint("Jak długość w centymetrach ma ten wymiar?");
+            measurementInput.setHint("Jak długość w milimetrach ma ten wymiar?");
             builder.setTitle("Zmierz dlugość")
                     .setCancelable(false)
                     .setView(measurementInput)
@@ -170,8 +170,14 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
                             Log.e(TAG, "measurement added");
                             Arrow a = new Arrow(arrow);
                             if (!measurementInput.getText().toString().isEmpty()) {
-                                a.setMeasurement(Integer.valueOf(measurementInput.getText().toString()));
+                                try {
+                                    a.setMeasurement(Integer.valueOf(measurementInput.getText().toString()));
+                                } catch (NumberFormatException e) {
+                                    Log.e(TAG, "not a number");
+                                }
                                 photo.addArrow(a);
+                            } else {
+                                Log.e(TAG, "empty text");
                             }
                         }
                     })
