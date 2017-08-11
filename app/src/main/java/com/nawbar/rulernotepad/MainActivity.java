@@ -4,21 +4,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-import android.support.v4.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.j256.ormlite.android.apptools.OpenHelperManager;
+import com.nawbar.rulernotepad.database.DatabaseHelper;
 import com.nawbar.rulernotepad.editor.Editor;
+import com.nawbar.rulernotepad.editor.Measurement;
+import com.nawbar.rulernotepad.editor.Photo;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
+
+/**
+ * Created by Bartosz Nawrot on 2017-06-21.
+ */
 
 public class MainActivity extends AppCompatActivity implements
         MeasurementsFragment.MeasurementsListener,
@@ -27,20 +33,27 @@ public class MainActivity extends AppCompatActivity implements
 
     private static String TAG = MainActivity.class.getSimpleName();
 
+    private volatile DatabaseHelper helper = null;
+    private volatile boolean created = false;
+    private volatile boolean destroyed = false;
+
     private Fragment[] fragments;
     private int currentPosition;
 
     private Editor editor;
 
-    private String currentMeasurement;
-    private String currentPhoto;
+    private Measurement currentMeasurement;
+    private Photo currentPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        editor = new Editor();
+        helper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
+        created = true;
+
+        editor = new Editor(getDatabaseHelper());
 
         fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
         currentPosition = 0;
@@ -54,9 +67,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMeasurementSelect(String name) {
-        Log.e(TAG, "onGallerySelect: " + name);
-        currentMeasurement = name;
+    protected void onDestroy() {
+        super.onDestroy();
+        destroyed = true;
+    }
+
+    @Override
+    public void onMeasurementSelect(Measurement measurement) {
+        Log.e(TAG, "onGallerySelect: " + measurement.getName());
+        currentMeasurement = measurement;
         currentPosition = 1;
         moveToFragment();
     }
@@ -67,15 +86,15 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onPhotoSelect(String name) {
-        Log.e(TAG, "onPhotoSelect: " + name);
-        currentPhoto = name;
+    public void onPhotoSelect(Photo photo) {
+        Log.e(TAG, "onPhotoSelect: " + photo.getName());
+        currentPhoto = photo;
         currentPosition = 2;
         moveToFragment();
     }
 
     @Override
-    public String getCurrentMeasurement() {
+    public Measurement getCurrentMeasurement() {
         return currentMeasurement;
     }
 
@@ -85,13 +104,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Pair<String, String> getCurrentPhoto() {
-        return new Pair<>(currentMeasurement, currentPhoto);
-    }
-
-    @Override
-    public PhotoFragment.PhotoFragmentCommandsListener getPhotoCommandsListener() {
-        return editor;
+    public Photo getCurrentPhoto() {
+        return currentPhoto;
     }
 
     @Override
@@ -155,6 +169,21 @@ public class MainActivity extends AppCompatActivity implements
         ft.commit();
         if (currentPosition == 0) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        }
+    }
+
+    public DatabaseHelper getDatabaseHelper() {
+        if (helper == null) {
+            if (!created) {
+                throw new IllegalStateException("A call has not been made to onCreate() yet so the helper is null");
+            } else if (destroyed) {
+                throw new IllegalStateException(
+                        "A call to onDestroy has already been made and the helper cannot be used after that point");
+            } else {
+                throw new IllegalStateException("Helper is null for some unknown reason");
+            }
+        } else {
+            return helper;
         }
     }
 }

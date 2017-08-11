@@ -1,59 +1,108 @@
 package com.nawbar.rulernotepad.editor;
 
-import android.graphics.PointF;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
 
 /**
  * Created by Bartosz Nawrot on 2017-06-21.
  */
 
+@DatabaseTable(tableName = "arrows")
 public class Arrow {
 
-    private PointF start;
-    private PointF end;
-    private int measurement = 100; // in set scale (default cm)
+    public static final String PHOTO_ID_FIELD_NAME = "photo_id";
+
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = PHOTO_ID_FIELD_NAME)
+    private Photo photo;
+
+    @DatabaseField(canBeNull = false)
+    private float startX;
+
+    @DatabaseField(canBeNull = false)
+    private float startY;
+
+    @DatabaseField(canBeNull = false)
+    private float endX;
+
+    @DatabaseField(canBeNull = false)
+    private float endY;
+
+    @DatabaseField(canBeNull = false)
+    private int value; // [mm]
 
     public Arrow() {
+        // ORMLite needs a no-arg constructor
+    }
+
+    public Arrow(Photo photo) {
+        this.photo = photo;
+    }
+
+    public Arrow(Photo photo, float sx, float sy, float ex, float ey) {
+        this.startX = sx;
+        this.startY = sy;
+        this.endX = ex;
+        this.endY = ey;
+        this.photo = photo;
     }
 
     public Arrow(Arrow a) {
-        this.start = a.start;
-        this.end = a.end;
-        this.measurement = a.measurement;
-    }
-    public Arrow(PointF start, PointF end) {
-        this.start = start;
-        this.end = end;
-    }
-
-    public PointF getStart() {
-        return start;
+        this.photo = a.photo;
+        this.startX = a.startX;
+        this.startY = a.startY;
+        this.endX = a.endX;
+        this.endY = a.endY;
+        this.value = a.value;
     }
 
-    public void setStart(PointF start) {
-        this.start = start;
+    public int getId() {
+        return id;
     }
 
-    public PointF getEnd() {
-        return end;
+    public Photo getPhoto() {
+        return photo;
     }
 
-    public void setEnd(PointF end) {
-        this.end = end;
+    public float getStartX() {
+        return startX;
     }
 
-    public int getMeasurement() {
-        return measurement;
+    public void setStartX(float startX) {
+        this.startX = startX;
     }
 
-    public void setMeasurement(int measurement) {
-        this.measurement = measurement;
+    public float getStartY() {
+        return startY;
     }
 
-    public float getLength() {
-        return (float)(Math.sqrt(Math.pow(end.x - start.x, 2.0) + Math.pow(end.y - start.y, 2)));
+    public void setStartY(float startY) {
+        this.startY = startY;
     }
 
-    public boolean isValid() {
-        return getLength() > 100.0f;
+    public float getEndX() {
+        return endX;
+    }
+
+    public void setEndX(float endX) {
+        this.endX = endX;
+    }
+
+    public float getEndY() {
+        return endY;
+    }
+
+    public void setEndY(float endY) {
+        this.endY = endY;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public void setValue(int value) {
+        this.value = value;
     }
 }

@@ -30,7 +30,6 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     private static long MIN_REDRAW_TIMEOUT = 50; // [ms], 20Hz
 
     private Photo photo;
-
     private Arrow currentDrawing;
 
     private Paint linePaint;
@@ -69,7 +68,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     public void onRevert() {
-        photo.popBackArrow();
+        //photo.popBackArrow();
         invalidate();
     }
 
@@ -78,8 +77,10 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         Log.e(TAG, "onDraw");
         super.onDraw(canvas);
         lastRedraw = System.currentTimeMillis();
-        for (Arrow a : photo.getArrows()) {
-            drawArrow(a, canvas, true);
+        if (photo.getArrows() != null) {
+            for (Arrow a : photo.getArrows()) {
+                drawArrow(a, canvas, true);
+            }
         }
         if (currentDrawing != null) {
             drawArrow(currentDrawing, canvas, false);
@@ -111,20 +112,20 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     private void drawMeasurement(Canvas canvas, Arrow arrow) {
-        linePaint.setTextSize(arrow.getLength()*0.08f);
+        linePaint.setTextSize(25);
         Path path = new Path();
-        path.moveTo(arrow.getStart().x, arrow.getStart().y);
-        path.lineTo(arrow.getEnd().x, arrow.getEnd().y);
-        canvas.drawTextOnPath(String.valueOf(arrow.getMeasurement()) + "mm", path, 0, -arrow.getLength()*0.01f, linePaint);
+        path.moveTo(arrow.getStartX(), arrow.getStartY());
+        path.lineTo(arrow.getEndX(), arrow.getEndY());
+        canvas.drawTextOnPath(String.valueOf(arrow.getValue()) + "mm", path, 0, -5, linePaint);
     }
 
     private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
-        canvas.drawLine(arrow.getStart().x, arrow.getStart().y,
-                arrow.getEnd().x, arrow.getEnd().y, linePaint);
-        fillArrow(canvas, arrow.getStart().x, arrow.getStart().y,
-                arrow.getEnd().x, arrow.getEnd().y);
-        fillArrow(canvas, arrow.getEnd().x, arrow.getEnd().y,
-                arrow.getStart().x, arrow.getStart().y);
+        canvas.drawLine(arrow.getStartX(), arrow.getStartY(),
+                arrow.getEndX(), arrow.getEndY(), linePaint);
+        fillArrow(canvas, arrow.getStartX(), arrow.getStartY(),
+                arrow.getEndX(), arrow.getEndY());
+        fillArrow(canvas, arrow.getEndX(), arrow.getEndY(),
+                arrow.getStartX(), arrow.getStartY());
         if (set) {
             drawMeasurement(canvas, arrow);
         }
@@ -137,16 +138,16 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         float y = event.getY();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                currentDrawing = new Arrow(new PointF(x, y), new PointF(x, y));
+                currentDrawing = new Arrow(photo, x, y, x, y);
                 break;
             case MotionEvent.ACTION_MOVE:
-                currentDrawing.getEnd().x = x;
-                currentDrawing.getEnd().y = y;
+                currentDrawing.setEndX(x);
+                currentDrawing.setEndY(y);
                 if (isRedrawTimeout()) invalidate();
                 break;
             case MotionEvent.ACTION_UP:
-                currentDrawing.getEnd().x = x;
-                currentDrawing.getEnd().y = y;
+                currentDrawing.setEndX(x);
+                currentDrawing.setEndY(y);
                 addArrow(currentDrawing);
                 currentDrawing = null;
                 invalidate();
@@ -156,7 +157,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     private void addArrow(final Arrow arrow) {
-        if (arrow.isValid()) {
+        if (true) {
             Log.e(TAG, "fab_revert");
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final EditText measurementInput = new EditText(getContext());
@@ -171,11 +172,11 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
                             Arrow a = new Arrow(arrow);
                             if (!measurementInput.getText().toString().isEmpty()) {
                                 try {
-                                    a.setMeasurement(Integer.valueOf(measurementInput.getText().toString()));
+                                    a.setValue(Integer.valueOf(measurementInput.getText().toString()));
                                 } catch (NumberFormatException e) {
                                     Log.e(TAG, "not a number");
                                 }
-                                photo.addArrow(a);
+                                //photo.addArrow(arrow);
                             } else {
                                 Log.e(TAG, "empty text");
                             }

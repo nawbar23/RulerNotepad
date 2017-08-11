@@ -35,7 +35,7 @@ public class MeasurementsAdapter extends ArrayAdapter<Measurement> {
         TextView date = (TextView) convertView.findViewById(R.id.date);
         // Populate the data into the template view using the data object
         name.setText(measurement.getName());
-        date.setText(measurement.getDate());
+        date.setText(measurement.getDateString());
         // Return the completed view to render on screen
         return convertView;
     }

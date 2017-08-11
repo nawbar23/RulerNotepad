@@ -84,7 +84,7 @@ public class MeasurementsFragment extends ListFragment implements
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemLongClick, position: " + position);
-        listener.onMeasurementSelect(adapter.getItem(position).getName());
+        listener.onMeasurementSelect(adapter.getItem(position));
         return true;
     }
 
@@ -114,8 +114,8 @@ public class MeasurementsFragment extends ListFragment implements
                                 String newName = nameInput.getText().toString();
                                 if (!newName.isEmpty()) {
                                     Log.e(TAG, "New name for measurement: " + newName);
-                                    commandsListener.onMeasurementAdd(newName);
-                                    listener.onMeasurementSelect(newName);
+                                    Measurement m = commandsListener.onMeasurementAdd(newName);
+                                    listener.onMeasurementSelect(m);
                                 }
                             }
                         })
@@ -134,14 +134,14 @@ public class MeasurementsFragment extends ListFragment implements
     }
 
     public interface MeasurementsListener {
-        void onMeasurementSelect(String name);
+        void onMeasurementSelect(Measurement measurement);
         MeasurementsCommandsListener getMeasurementsCommandsListener();
     }
 
     public interface MeasurementsCommandsListener {
-        void onMeasurementAdd(String name);
-        void onMeasurementRemove(String name);
-        void onMeasurementSend(String name);
+        Measurement onMeasurementAdd(String measurementName);
+        void onMeasurementRemove(Measurement measurement);
+        void onMeasurementSend(Measurement measurement);
         List<Measurement> getMeasurements();
     }
 }

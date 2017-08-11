@@ -1,24 +1,56 @@
 package com.nawbar.rulernotepad.editor;
 
+import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.field.ForeignCollectionField;
+import com.j256.ormlite.table.DatabaseTable;
+
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by nawba on 22.06.2017.
+ * Created by Bartosz Nawrot on 2017-06-21.
  */
 
+@DatabaseTable(tableName = "measurements")
 public class Measurement {
+
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+
+    @DatabaseField(generatedId = true)
+    private int id;
+
+    @DatabaseField(canBeNull = false)
     private String name;
-    private String date;
-    private List<Photo> photos;
+
+    @DatabaseField(canBeNull = false)
+    private Date date;
+
+    @DatabaseField(canBeNull = false)
+    private long form;
+
+    @DatabaseField
+    private double latitude;
+
+    @DatabaseField
+    private double longitude;
+
+    @ForeignCollectionField
+    private ForeignCollection<Photo> photos;
+
+    public Measurement() {
+        // ORMLite needs a no-arg constructor
+    }
 
     public Measurement(String name) {
         this.name = name;
-        this.date = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH).format(new Date());
-        photos = new ArrayList<>();
+        this.date = new Date();
+        this.form = 0;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {
@@ -29,32 +61,43 @@ public class Measurement {
         this.name = name;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public List<Photo> getPhotos() {
+    public long getForm() {
+        return form;
+    }
+
+    public void setForm(long form) {
+        this.form = form;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public ForeignCollection<Photo> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<Photo> photos) {
-        this.photos = photos;
-    }
-
-    public Photo getPhoto(String name) {
-        for (Photo p : photos) {
-            if (p.getName().equals(name)) {
-                return p;
-            }
-        }
-        return null;
-    }
-
-    public void addPhoto(Photo photo) {
-        photos.add(photo);
+    public String getDateString() {
+        return dateFormat.format(date);
     }
 }

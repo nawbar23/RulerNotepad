@@ -15,7 +15,7 @@ import com.nawbar.rulernotepad.editor.Photo;
 import java.util.List;
 
 /**
- * Created by nawba on 22.06.2017.
+ * Created by Bartosz Nawrot on 22.06.2017.
  */
 
 public class GalleryAdapter extends ArrayAdapter<Photo> {

@@ -36,6 +36,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -59,7 +60,8 @@ public class GalleryFragment extends ListFragment implements
 
     private ArrayAdapter<Photo> adapter;
 
-    private String currentPhoto;
+    private String currentPhotoName;
+    private String currentPhotoPath;
 
     @Override
     public void onAttach(Context context) {
@@ -109,7 +111,7 @@ public class GalleryFragment extends ListFragment implements
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemLongClick, position: " + position);
-        listener.onPhotoSelect(adapter.getItem(position).getName());
+        listener.onPhotoSelect(adapter.getItem(position));
         return false;
     }
 
@@ -136,9 +138,9 @@ public class GalleryFragment extends ListFragment implements
                         .setView(nameInput)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                currentPhoto = nameInput.getText().toString();
-                                if (!currentPhoto.isEmpty()) {
-                                    Log.e(TAG, "Starting camera for name: " + currentPhoto);
+                                currentPhotoName = nameInput.getText().toString();
+                                if (!currentPhotoName.isEmpty()) {
+                                    Log.e(TAG, "Starting camera for name: " + currentPhotoName);
                                     dispatchTakePictureIntent();
                                 }
                             }
@@ -157,8 +159,6 @@ public class GalleryFragment extends ListFragment implements
         });
     }
 
-    String mCurrentPhotoPath;
-
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -171,7 +171,7 @@ public class GalleryFragment extends ListFragment implements
         );
 
         // Save a file: path for use with ACTION_VIEW intents
-        mCurrentPhotoPath = image.getAbsolutePath();
+        currentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -206,10 +206,10 @@ public class GalleryFragment extends ListFragment implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            Log.e(TAG, "onActivityResult with photo: " + currentPhoto + " path: " + mCurrentPhotoPath);
-            Photo toAdd = new Photo(currentPhoto);
+            Log.e(TAG, "onActivityResult with photo: " + currentPhotoName + " path: " + currentPhotoPath);
+            Photo toAdd = new Photo(listener.getCurrentMeasurement(), currentPhotoName);
 
-            toAdd.setFull(BitmapFactory.decodeFile(mCurrentPhotoPath));
+            toAdd.setFull(BitmapFactory.decodeFile(currentPhotoPath));
 
             // Get the dimensions of the View
             int targetW = 100;
@@ -225,26 +225,24 @@ public class GalleryFragment extends ListFragment implements
             bmOptions.inJustDecodeBounds = false;
             bmOptions.inSampleSize = scaleFactor;
 
-            toAdd.setMini(BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions));
-            commandsListener.onPhotoAdd(listener.getCurrentMeasurement(), toAdd);
+            toAdd.setMini(BitmapFactory.decodeFile(currentPhotoPath, bmOptions));
+            commandsListener.onPhotoAdd(toAdd);
 
             // TODO delete file saved in path for memory performance
 
-            listener.onPhotoSelect(currentPhoto);
+            listener.onPhotoSelect(toAdd);
         }
     }
 
     public interface GalleryFragmentListener {
-        void onPhotoSelect(String name);
-        String getCurrentMeasurement();
+        void onPhotoSelect(Photo photo);
+        Measurement getCurrentMeasurement();
         GalleryFragmentCommandsListener getGalleryCommandsListener();
     }
 
     public interface GalleryFragmentCommandsListener {
-        void onPhotoAdd(String measurementName, Photo photo);
-        void onPhotoRemove(String item);
-        void onPhotoEdit(String item);
-        void onPhotoRename(String item);
-        List<Photo> getPhotos(String measurement);
+        void onPhotoAdd(Photo photo);
+        void onPhotoRemove(Photo photo);
+        List<Photo> getPhotos(Measurement measurement);
     }
 }

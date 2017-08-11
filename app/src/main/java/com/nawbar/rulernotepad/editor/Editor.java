@@ -1,12 +1,13 @@
 package com.nawbar.rulernotepad.editor;
 
+import com.j256.ormlite.dao.Dao;
+import com.nawbar.rulernotepad.database.DatabaseHelper;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
-import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 /**
  * Created by Bartosz Nawrot on 2017-06-15.
@@ -14,79 +15,79 @@ import java.util.List;
 
 public class Editor implements
         MeasurementsFragment.MeasurementsCommandsListener,
-        GalleryFragment.GalleryFragmentCommandsListener,
-        PhotoFragment.PhotoFragmentCommandsListener {
+        GalleryFragment.GalleryFragmentCommandsListener {
 
     private static String TAG = Editor.class.getSimpleName();
 
-    private List<Measurement> parsed;
+    private Dao<Measurement, Integer> measurementsDao;
+    private Dao<Photo, Integer> photosDao;
+    private Dao<Arrow, Integer> arrowsDao;
 
-    public Editor() {
-        parsed = new ArrayList<>();
-    }
-
-    public Measurement getMeasurement(String name) {
-        for (Measurement m : parsed) {
-            if (m.getName().equals(name)) {
-                return m;
-            }
+    public Editor(DatabaseHelper helper) {
+        try {
+            measurementsDao = helper.getMeasurementDao();
+            photosDao = helper.getPhotoDao();
+            arrowsDao = helper.getArrowDao();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return null;
-    }
-
-    @Override
-    public void onMeasurementAdd(String name) {
-        parsed.add(new Measurement(name));
-    }
-
-    @Override
-    public void onMeasurementRemove(String name) {
-
-    }
-
-    @Override
-    public void onMeasurementSend(String name) {
-
     }
 
     @Override
     public List<Measurement> getMeasurements() {
-        return parsed;
+        try {
+            return measurementsDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     @Override
-    public void onPhotoAdd(String measurementName, Photo photo) {
-        getMeasurement(measurementName).addPhoto(photo);
+    public Measurement onMeasurementAdd(String name) {
+        Measurement m = new Measurement(name);
+        try {
+            measurementsDao.create(m);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return m;
     }
 
     @Override
-    public void onPhotoRemove(String item) {
-
-    }
-
-    @Override
-    public void onPhotoEdit(String item) {
-
-    }
-
-    @Override
-    public void onPhotoRename(String item) {
+    public void onMeasurementRemove(Measurement measurement) {
 
     }
 
     @Override
-    public List<Photo> getPhotos(String measurementName) {
-        return getMeasurement(measurementName).getPhotos();
+    public void onMeasurementSend(Measurement measurement) {
+
     }
 
     @Override
-    public Photo getPhoto(String measurementName, String photoName)
-    {
-        return getMeasurement(measurementName).getPhoto(photoName);
+    public void onPhotoAdd(Photo photo) {
+        if (photo.getMeasurement().getPhotos() != null) {
+            photo.getMeasurement().getPhotos().add(photo);
+        } else {
+            try {
+                photosDao.create(photo);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
-    public void onAddPhotoMeasurement() {
+    public void onPhotoRemove(Photo photo) {
 
+    }
+
+    @Override
+    public List<Photo> getPhotos(Measurement measurement) {
+        if (measurement.getPhotos() != null) {
+            return new ArrayList<>(measurement.getPhotos());
+        } else {
+            return new ArrayList<>();
+        }
     }
 }
