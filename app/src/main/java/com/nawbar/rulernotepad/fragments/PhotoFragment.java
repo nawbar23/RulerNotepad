@@ -16,6 +16,8 @@ import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Arrow;
 import com.nawbar.rulernotepad.editor.Photo;
 
+import java.util.List;
+
 /**
  * Created by Bartosz Nawrot on 2017-06-15.
  */
@@ -54,7 +56,7 @@ public class PhotoFragment extends Fragment {
     public void onStart() {
         Log.e(TAG, "onStart");
         super.onStart();
-        photoView.setPhoto(listener.getCurrentPhoto());
+        photoView.initialize(listener.getCurrentPhoto(), listener.getPhotoCommandsListener());
     }
 
     @Override
@@ -88,5 +90,12 @@ public class PhotoFragment extends Fragment {
 
     public interface PhotoFragmentListener {
         Photo getCurrentPhoto();
+        PhotoFragmentCommandsListener getPhotoCommandsListener();
+    }
+
+    public interface PhotoFragmentCommandsListener {
+        void onArrowAdd(Arrow arrow);
+        void onArrowRemove(Arrow arrow);
+        List<Arrow> getArrows(Photo photo);
     }
 }

@@ -4,6 +4,7 @@ import com.j256.ormlite.dao.Dao;
 import com.nawbar.rulernotepad.database.DatabaseHelper;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
+import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,7 +16,8 @@ import java.util.List;
 
 public class Editor implements
         MeasurementsFragment.MeasurementsCommandsListener,
-        GalleryFragment.GalleryFragmentCommandsListener {
+        GalleryFragment.GalleryFragmentCommandsListener,
+        PhotoFragment.PhotoFragmentCommandsListener {
 
     private static String TAG = Editor.class.getSimpleName();
 
@@ -30,16 +32,6 @@ public class Editor implements
             arrowsDao = helper.getArrowDao();
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-    }
-
-    @Override
-    public List<Measurement> getMeasurements() {
-        try {
-            return measurementsDao.queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
         }
     }
 
@@ -65,6 +57,16 @@ public class Editor implements
     }
 
     @Override
+    public List<Measurement> getMeasurements() {
+        try {
+            return measurementsDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
     public void onPhotoAdd(Photo photo) {
         if (photo.getMeasurement().getPhotos() != null) {
             photo.getMeasurement().getPhotos().add(photo);
@@ -86,6 +88,33 @@ public class Editor implements
     public List<Photo> getPhotos(Measurement measurement) {
         if (measurement.getPhotos() != null) {
             return new ArrayList<>(measurement.getPhotos());
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void onArrowAdd(Arrow arrow) {
+        if (arrow.getPhoto().getArrows() != null) {
+            arrow.getPhoto().getArrows().add(arrow);
+        } else {
+            try {
+                arrowsDao.create(arrow);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onArrowRemove(Arrow arrow) {
+
+    }
+
+    @Override
+    public List<Arrow> getArrows(Photo photo) {
+        if (photo.getArrows() != null) {
+            return new ArrayList<>(photo.getArrows());
         } else {
             return new ArrayList<>();
         }

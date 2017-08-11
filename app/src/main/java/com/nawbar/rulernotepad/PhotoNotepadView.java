@@ -18,6 +18,9 @@ import android.widget.EditText;
 
 import com.nawbar.rulernotepad.editor.Arrow;
 import com.nawbar.rulernotepad.editor.Photo;
+import com.nawbar.rulernotepad.fragments.PhotoFragment;
+
+import java.util.List;
 
 /**
  * Created by nawba on 23.06.2017.
@@ -29,7 +32,10 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     private static String TAG = PhotoNotepadView.class.getSimpleName();
     private static long MIN_REDRAW_TIMEOUT = 50; // [ms], 20Hz
 
+    PhotoFragment.PhotoFragmentCommandsListener listener;
+
     private Photo photo;
+    private List<Arrow> arrows;
     private Arrow currentDrawing;
 
     private Paint linePaint;
@@ -51,8 +57,10 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         initialize();
     }
 
-    public void setPhoto(Photo photo) {
+    public void initialize(Photo photo, PhotoFragment.PhotoFragmentCommandsListener listener) {
+        this.listener = listener;
         this.photo = photo;
+        this.arrows = listener.getArrows(photo);
         setImageBitmap(photo.getFull());
     }
 
@@ -68,7 +76,10 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     public void onRevert() {
-        //photo.popBackArrow();
+        if (arrows.size() > 0) {
+            listener.onArrowRemove(arrows.get(arrows.size() - 1));
+            arrows.remove(arrows.size() - 1);
+        }
         invalidate();
     }
 
@@ -77,10 +88,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         Log.e(TAG, "onDraw");
         super.onDraw(canvas);
         lastRedraw = System.currentTimeMillis();
-        if (photo.getArrows() != null) {
-            for (Arrow a : photo.getArrows()) {
-                drawArrow(a, canvas, true);
-            }
+        for (Arrow a : arrows) {
+            drawArrow(a, canvas, true);
         }
         if (currentDrawing != null) {
             drawArrow(currentDrawing, canvas, false);
@@ -176,7 +185,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
                                 } catch (NumberFormatException e) {
                                     Log.e(TAG, "not a number");
                                 }
-                                //photo.addArrow(arrow);
+                                arrows.add(a);
+                                listener.onArrowAdd(a);
                             } else {
                                 Log.e(TAG, "empty text");
                             }
