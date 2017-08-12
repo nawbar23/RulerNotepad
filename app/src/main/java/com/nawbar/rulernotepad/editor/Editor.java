@@ -48,7 +48,11 @@ public class Editor implements
 
     @Override
     public void onMeasurementRemove(Measurement measurement) {
-
+        try {
+            measurementsDao.delete(measurement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -86,6 +90,11 @@ public class Editor implements
 
     @Override
     public List<Photo> getPhotos(Measurement measurement) {
+        try {
+            measurementsDao.refresh(measurement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         if (measurement.getPhotos() != null) {
             return new ArrayList<>(measurement.getPhotos());
         } else {
@@ -108,11 +117,20 @@ public class Editor implements
 
     @Override
     public void onArrowRemove(Arrow arrow) {
-
+        try {
+            arrowsDao.delete(arrow);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public List<Arrow> getArrows(Photo photo) {
+        try {
+            photosDao.refresh(photo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         if (photo.getArrows() != null) {
             return new ArrayList<>(photo.getArrows());
         } else {

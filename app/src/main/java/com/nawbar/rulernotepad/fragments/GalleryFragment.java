@@ -1,5 +1,6 @@
 package com.nawbar.rulernotepad.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -207,30 +209,30 @@ public class GalleryFragment extends ListFragment implements
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Log.e(TAG, "onActivityResult with photo: " + currentPhotoName + " path: " + currentPhotoPath);
-            Photo toAdd = new Photo(listener.getCurrentMeasurement(), currentPhotoName);
+            final ProgressDialog progress = ProgressDialog.show(getActivity(), "Chwilka...",
+                    "Laduje zdjecie", true);
+            new AsyncTask<String, Void, Void>() {
+                @Override
+                protected Void doInBackground(String... params) {
+                    Photo toAdd = new Photo(listener.getCurrentMeasurement(), currentPhotoName);
+                    toAdd.setPhotoBitmap(BitmapFactory.decodeFile(currentPhotoPath));
+                    commandsListener.onPhotoAdd(toAdd);
+                    // TODO delete file saved in path for memory performance
+                    listener.onPhotoSelect(toAdd);
+                    return null;
+                }
 
-            toAdd.setFull(BitmapFactory.decodeFile(currentPhotoPath));
-
-            // Get the dimensions of the View
-            int targetW = 100;
-            int targetH = 100;
-            int photoW = toAdd.getFull().getWidth();
-            int photoH = toAdd.getFull().getHeight();
-
-            // Determine how much to scale down the image
-            int scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-            // Decode the image file into a Bitmap sized to fill the View
-            BitmapFactory.Options bmOptions = new BitmapFactory.Options();
-            bmOptions.inJustDecodeBounds = false;
-            bmOptions.inSampleSize = scaleFactor;
-
-            toAdd.setMini(BitmapFactory.decodeFile(currentPhotoPath, bmOptions));
-            commandsListener.onPhotoAdd(toAdd);
-
-            // TODO delete file saved in path for memory performance
-
-            listener.onPhotoSelect(toAdd);
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    super.onPostExecute(aVoid);
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progress.dismiss();
+                        }
+                    });
+                }
+            }.execute(currentPhotoName);
         }
     }
 

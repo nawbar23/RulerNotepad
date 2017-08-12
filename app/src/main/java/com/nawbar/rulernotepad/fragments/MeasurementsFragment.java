@@ -63,11 +63,15 @@ public class MeasurementsFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        adapter = new MeasurementsAdapter(getActivity(), commandsListener.getMeasurements());
-        setListAdapter(adapter);
+        reload();
 
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+    }
+
+    public void reload() {
+        adapter = new MeasurementsAdapter(getActivity(), commandsListener.getMeasurements());
+        setListAdapter(adapter);
     }
 
     @Override

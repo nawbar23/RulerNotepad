@@ -24,7 +24,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String TAG = DatabaseHelper.class.getName();
     private static final String DATABASE_NAME = "measurements.db";
-    private static final int DATABASE_VERSION = 1; // 11.08.2017
+    //private static final int DATABASE_VERSION = 1; // 11.08.2017
+    private static final int DATABASE_VERSION = 2; // 12.08.2017
 
     // the DAO object we use to access the SimpleData table
     private Dao<Measurement, Integer> measurementsDao = null;
@@ -45,7 +46,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             Log.i(TAG, "onCreate");
             setupDatabase();
         } catch (SQLException e) {
-            Log.e(DatabaseHelper.class.getName(), "Can't create database", e);
+            Log.e(TAG, "Can't create database", e);
             throw new RuntimeException(e);
         }
     }
@@ -64,14 +65,14 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVersion, int newVersion) {
         try {
-            Log.i(DatabaseHelper.class.getName(), "onUpgrade");
+            Log.i(TAG, "onUpgrade");
             TableUtils.dropTable(connectionSource, Measurement.class, true);
             TableUtils.dropTable(connectionSource, Photo.class, true);
             TableUtils.dropTable(connectionSource, Arrow.class, true);
             // after we drop the old databases, we create the new ones
             onCreate(db, connectionSource);
         } catch (SQLException e) {
-            Log.e(DatabaseHelper.class.getName(), "Can't drop databases", e);
+            Log.e(TAG, "Can't drop databases", e);
             throw new RuntimeException(e);
         }
     }
@@ -95,6 +96,17 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             arrowsDao = getDao(Arrow.class);
         }
         return arrowsDao;
+    }
+
+    public void wipeDatabase() {
+        try {
+            Log.i(TAG, "Wiping database");
+            TableUtils.clearTable(getConnectionSource(), Measurement.class);
+            TableUtils.clearTable(getConnectionSource(), Photo.class);
+            TableUtils.clearTable(getConnectionSource(), Arrow.class);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

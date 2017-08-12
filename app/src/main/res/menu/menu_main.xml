@@ -13,4 +13,10 @@
         android:orderInCategory="99"
         android:title="@string/action_about"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_wipe"
+        android:orderInCategory="98"
+        android:title="@string/action_wipe"
+        app:showAsAction="never" />
 </menu>

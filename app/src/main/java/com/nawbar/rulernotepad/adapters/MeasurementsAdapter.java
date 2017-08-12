@@ -18,8 +18,8 @@ import java.util.List;
 
 public class MeasurementsAdapter extends ArrayAdapter<Measurement> {
 
-    public MeasurementsAdapter(Context context, List<Measurement> users) {
-        super(context, 0, users);
+    public MeasurementsAdapter(Context context, List<Measurement> measurements) {
+        super(context, 0, measurements);
     }
 
     @Override

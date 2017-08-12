@@ -142,6 +142,28 @@ public class MainActivity extends AppCompatActivity implements
                         .show();
                 break;
 
+            case R.id.action_wipe:
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(this);
+                builder2.setTitle("Wyczyść dane!")
+                        .setCancelable(true)
+                        .setMessage("Czy napewno chcesz usunąć całą historę pomiarów?\nDane będą bezpowrotnie stracone!")
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                Log.e(TAG, "database wipe accepted");
+                                helper.wipeDatabase();
+                                if (currentPosition > 0) {
+                                    currentPosition = 0;
+                                    moveToFragment();
+                                } else {
+                                    ((MeasurementsFragment)fragments[0]).reload();
+                                }
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+                break;
+
             case android.R.id.home:
                 onPopFragment();
                 break;

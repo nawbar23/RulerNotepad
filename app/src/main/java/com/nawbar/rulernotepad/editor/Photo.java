@@ -1,11 +1,15 @@
 package com.nawbar.rulernotepad.editor;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import com.j256.ormlite.dao.ForeignCollection;
+import com.j256.ormlite.field.DataType;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
+
+import java.io.ByteArrayOutputStream;
 
 /**
  * Created by Bartosz Nawrot on 2017-06-21.
@@ -25,11 +29,11 @@ public class Photo {
     @DatabaseField(canBeNull = false)
     private String name;
 
-    //@DatabaseField(canBeNull = false)
-    private Bitmap mini;
+    @DatabaseField(dataType = DataType.BYTE_ARRAY, canBeNull = false)
+    private byte[] mini;
 
-    //@DatabaseField(canBeNull = false)
-    private Bitmap full;
+    @DatabaseField(dataType = DataType.BYTE_ARRAY, canBeNull = false)
+    private byte[] full;
 
     @DatabaseField
     private String comment;
@@ -63,19 +67,31 @@ public class Photo {
     }
 
     public Bitmap getMini() {
-        return mini;
-    }
-
-    public void setMini(Bitmap mini) {
-        this.mini = mini;
+        return BitmapFactory.decodeByteArray(mini, 0, mini.length);
     }
 
     public Bitmap getFull() {
-        return full;
+        return BitmapFactory.decodeByteArray(full, 0, full.length);
     }
 
-    public void setFull(Bitmap full) {
-        this.full = full;
+    public void setPhotoBitmap(Bitmap photoBitmap) {
+        ByteArrayOutputStream streamFull = new ByteArrayOutputStream();
+        photoBitmap.compress(Bitmap.CompressFormat.PNG, 100, streamFull);
+        full = streamFull.toByteArray();
+
+        // Get the dimensions of the View
+        int targetW = 100;
+        int targetH = 100;
+        float photoW = photoBitmap.getWidth();
+        float photoH = photoBitmap.getHeight();
+        float scaleFactor = Math.max(photoW/targetW, photoH/targetH);
+        int dstW = (int)(photoW/scaleFactor);
+        int dstH = (int)(photoH/scaleFactor);
+
+        Bitmap miniBitmap = Bitmap.createScaledBitmap(photoBitmap, dstW, dstH, true);
+        ByteArrayOutputStream streamMini = new ByteArrayOutputStream();
+        miniBitmap.compress(Bitmap.CompressFormat.PNG, 100, streamMini);
+        mini = streamMini.toByteArray();
     }
 
     public String getComment() {
