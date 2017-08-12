@@ -89,6 +89,7 @@ public class PhotoFragment extends Fragment {
     }
 
     public interface PhotoFragmentListener {
+        void onMessage(String message);
         Photo getCurrentPhoto();
         PhotoFragmentCommandsListener getPhotoCommandsListener();
     }

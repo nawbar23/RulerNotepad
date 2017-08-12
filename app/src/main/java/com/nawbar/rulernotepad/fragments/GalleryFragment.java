@@ -65,6 +65,8 @@ public class GalleryFragment extends ListFragment implements
     private String currentPhotoName;
     private String currentPhotoPath;
 
+    private int selectedPosition = -1;
+
     @Override
     public void onAttach(Context context) {
         Log.e(TAG, "onAttach");
@@ -92,11 +94,14 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        adapter = new GalleryAdapter(getActivity(), commandsListener.getPhotos(listener.getCurrentMeasurement()));
-        setListAdapter(adapter);
-
+        reload();
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+    }
+
+    public void reload() {
+        adapter = new GalleryAdapter(getActivity(), commandsListener.getPhotos(listener.getCurrentMeasurement()));
+        setListAdapter(adapter);
     }
 
     @Override
@@ -108,6 +113,7 @@ public class GalleryFragment extends ListFragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
+        selectedPosition = position;
     }
 
     @Override
@@ -157,6 +163,13 @@ public class GalleryFragment extends ListFragment implements
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_remove");
+                if (selectedPosition != -1) {
+                    commandsListener.onPhotoRemove(adapter.getItem(selectedPosition));
+                    selectedPosition = -1;
+                    reload();
+                } else {
+                    listener.onMessage("Zaznacz zdjęcie do usunięcia");
+                }
             }
         });
     }
@@ -216,8 +229,10 @@ public class GalleryFragment extends ListFragment implements
                 protected Void doInBackground(String... params) {
                     Photo toAdd = new Photo(listener.getCurrentMeasurement(), currentPhotoName);
                     toAdd.setPhotoBitmap(BitmapFactory.decodeFile(currentPhotoPath));
+                    if (new File(currentPhotoPath).delete()) {
+                        Log.e(TAG, "Error while deleting temporary file");
+                    }
                     commandsListener.onPhotoAdd(toAdd);
-                    // TODO delete file saved in path for memory performance
                     listener.onPhotoSelect(toAdd);
                     return null;
                 }
@@ -237,6 +252,7 @@ public class GalleryFragment extends ListFragment implements
     }
 
     public interface GalleryFragmentListener {
+        void onMessage(String message);
         void onPhotoSelect(Photo photo);
         Measurement getCurrentMeasurement();
         GalleryFragmentCommandsListener getGalleryCommandsListener();

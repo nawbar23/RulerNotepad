@@ -85,7 +85,11 @@ public class Editor implements
 
     @Override
     public void onPhotoRemove(Photo photo) {
-
+        try {
+            photosDao.delete(photo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
