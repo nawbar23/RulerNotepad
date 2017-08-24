@@ -116,11 +116,29 @@ public class MeasurementsFragment extends ListFragment implements
     }
 
     private void setupButtons(View view) {
+        FloatingActionButton fab_form = (FloatingActionButton) view.findViewById(R.id.fab_form);
+        fab_form.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_form");
+                if (selectedPosition != -1) {
+                    listener.onFormFill(adapter.getItem(selectedPosition));
+                } else {
+                    listener.onMessage("Zaznacz pomiar do formularza");
+                }
+            }
+        });
+
         FloatingActionButton fab_email = (FloatingActionButton) view.findViewById(R.id.fab_email);
         fab_email.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_email");
+                if (selectedPosition != -1) {
+                    listener.onMeasurementSend(adapter.getItem(selectedPosition));
+                } else {
+                    listener.onMessage("Zaznacz pomiar do wysłania");
+                }
             }
         });
 
@@ -176,6 +194,8 @@ public class MeasurementsFragment extends ListFragment implements
     public interface MeasurementsListener {
         void onMessage(String message);
         void onMeasurementSelect(Measurement measurement);
+        void onMeasurementSend(Measurement measurement);
+        void onFormFill(Measurement measurement);
         MeasurementsCommandsListener getMeasurementsCommandsListener();
     }
 

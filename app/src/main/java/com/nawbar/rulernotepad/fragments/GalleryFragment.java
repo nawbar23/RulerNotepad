@@ -145,11 +145,21 @@ public class GalleryFragment extends ListFragment implements
     }
 
     private void setupButtons(View view) {
+        FloatingActionButton fab_form = (FloatingActionButton) view.findViewById(R.id.fab_form);
+        fab_form.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_form");
+                listener.onMeasurementSend(listener.getCurrentMeasurement());
+            }
+        });
+
         FloatingActionButton fab_email = (FloatingActionButton) view.findViewById(R.id.fab_email);
         fab_email.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_email");
+                listener.onMeasurementSend(listener.getCurrentMeasurement());
             }
         });
 
@@ -250,7 +260,7 @@ public class GalleryFragment extends ListFragment implements
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Log.e(TAG, "onActivityResult with photo: " + currentPhotoName + " path: " + currentPhotoPath);
             final ProgressDialog progress = ProgressDialog.show(getActivity(), "Chwilka...",
-                    "Laduje zdjecie", true);
+                    "Laduje zdjecie :)", true);
             new AsyncTask<String, Void, Void>() {
                 @Override
                 protected Void doInBackground(String... params) {
@@ -281,6 +291,8 @@ public class GalleryFragment extends ListFragment implements
     public interface GalleryFragmentListener {
         void onMessage(String message);
         void onPhotoSelect(Photo photo);
+        void onMeasurementSend(Measurement measurement);
+        void onFormFill(Measurement measurement);
         Measurement getCurrentMeasurement();
         GalleryFragmentCommandsListener getGalleryCommandsListener();
     }

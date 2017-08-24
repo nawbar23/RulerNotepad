@@ -48,7 +48,7 @@ public class Measurement {
     public Measurement(String name) {
         this.name = name;
         this.date = new Date();
-        this.form = 0;
+        this.form = Long.MAX_VALUE;
     }
 
     public int getId() {
@@ -102,5 +102,9 @@ public class Measurement {
 
     public String getDateString() {
         return dateFormat.format(date);
+    }
+
+    public boolean isFormFilled() {
+        return form != Long.MAX_VALUE;
     }
 }

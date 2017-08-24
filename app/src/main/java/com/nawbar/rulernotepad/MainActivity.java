@@ -1,8 +1,8 @@
 package com.nawbar.rulernotepad;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
@@ -20,6 +20,8 @@ import com.nawbar.rulernotepad.database.DatabaseHelper;
 import com.nawbar.rulernotepad.editor.Editor;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
+import com.nawbar.rulernotepad.email.MeasurementSender;
+import com.nawbar.rulernotepad.form.FormDialog;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
@@ -31,7 +33,9 @@ import com.nawbar.rulernotepad.fragments.PhotoFragment;
 public class MainActivity extends AppCompatActivity implements
         MeasurementsFragment.MeasurementsListener,
         GalleryFragment.GalleryFragmentListener,
-        PhotoFragment.PhotoFragmentListener {
+        PhotoFragment.PhotoFragmentListener,
+        MeasurementSender.Listener,
+        FormDialog.Listener {
 
     private static String TAG = MainActivity.class.getSimpleName();
 
@@ -43,6 +47,11 @@ public class MainActivity extends AppCompatActivity implements
     private int currentPosition;
 
     private Editor editor;
+
+    private MeasurementSender sender;
+    private ProgressDialog emailProgress = null;
+
+    private FormDialog formDialog = null;
 
     private Measurement currentMeasurement;
     private Photo currentPhoto;
@@ -56,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements
         created = true;
 
         editor = new Editor(getDatabaseHelper());
+        sender = new MeasurementSender(this);
 
         fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
         currentPosition = 0;
@@ -93,6 +103,21 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
+    public void onMeasurementSend(Measurement measurement) {
+        Log.e(TAG, "onMeasurementSend: " + measurement.getName());
+        emailProgress = ProgressDialog.show(this, "Chwilka...",
+                "Wysyłam pomiar :)", true);
+        sender.send(measurement);
+    }
+
+    @Override
+    public void onFormFill(Measurement measurement) {
+        Log.e(TAG, "onFormFill: " + measurement.getName());
+        formDialog = new FormDialog(this, this, measurement);
+        formDialog.show();
+    }
+
+    @Override
     public MeasurementsFragment.MeasurementsCommandsListener getMeasurementsCommandsListener() {
         return editor;
     }
@@ -123,6 +148,40 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public PhotoFragment.PhotoFragmentCommandsListener getPhotoCommandsListener() {
         return editor;
+    }
+
+    @Override
+    public void onSuccess() {
+        Log.e(TAG, "onSuccess");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (emailProgress != null) {
+                    emailProgress.dismiss();
+                }
+                Toast.makeText(MainActivity.this, "Pomiar wsyłąny, sprawdź skrzynkę pocztową :)", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    @Override
+    public void onError(final String message) {
+        Log.e(TAG, "onError " + message);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (emailProgress != null) {
+                    emailProgress.dismiss();
+                }
+                AskDialog.show(MainActivity.this, "Błąd!", "Pomiar nie wysłąny.\n" + message, null);
+            }
+        });
+    }
+
+    @Override
+    public void onClose() {
+        Log.e(TAG, "onClose");
+        formDialog = null;
     }
 
     @Override
