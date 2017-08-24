@@ -15,11 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.nawbar.rulernotepad.AskDialog;
+import com.nawbar.rulernotepad.dialogs.AskDialog;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.adapters.MeasurementsAdapter;

@@ -1,4 +1,4 @@
-package com.nawbar.rulernotepad.form;
+package com.nawbar.rulernotepad.dialogs;
 
 import android.app.Dialog;
 import android.content.Context;

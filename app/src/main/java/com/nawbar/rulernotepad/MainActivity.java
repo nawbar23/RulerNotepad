@@ -17,11 +17,12 @@ import android.widget.Toast;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.nawbar.rulernotepad.database.DatabaseHelper;
+import com.nawbar.rulernotepad.dialogs.AskDialog;
 import com.nawbar.rulernotepad.editor.Editor;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
 import com.nawbar.rulernotepad.email.MeasurementSender;
-import com.nawbar.rulernotepad.form.FormDialog;
+import com.nawbar.rulernotepad.dialogs.FormDialog;
 import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
@@ -105,8 +106,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMeasurementSend(Measurement measurement) {
         Log.e(TAG, "onMeasurementSend: " + measurement.getName());
-        emailProgress = ProgressDialog.show(this, "Chwilka...",
-                "Wysyłam pomiar :)", true);
+        emailProgress = ProgressDialog.show(this, "Chwilka...", "Wysyłam pomiar :)", true);
         sender.send(measurement);
     }
 

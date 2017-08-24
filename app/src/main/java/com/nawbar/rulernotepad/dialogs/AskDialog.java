@@ -1,9 +1,8 @@
-package com.nawbar.rulernotepad;
+package com.nawbar.rulernotepad.dialogs;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 
 /**
  * Created by Bartosz Nawrot on 2017-08-24.
