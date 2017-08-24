@@ -23,7 +23,7 @@ import com.nawbar.rulernotepad.fragments.PhotoFragment;
 import java.util.List;
 
 /**
- * Created by nawba on 23.06.2017.
+ * Created by Bartosz Nawrot on 2017-06-15.
  */
 
 public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageView

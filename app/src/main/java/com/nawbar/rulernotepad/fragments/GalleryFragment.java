@@ -8,6 +8,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -16,6 +18,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.util.Pair;
 import android.support.v7.app.AlertDialog;
@@ -27,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.nawbar.rulernotepad.MainActivity;
 import com.nawbar.rulernotepad.R;
@@ -66,6 +70,7 @@ public class GalleryFragment extends ListFragment implements
     private String currentPhotoPath;
 
     private int selectedPosition = -1;
+    private TextView selectedTextView = null;
 
     @Override
     public void onAttach(Context context) {
@@ -86,6 +91,10 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
         setupButtons(rootView);
+
+        selectedPosition = -1;
+        selectedTextView = null;
+
         return rootView;
     }
 
@@ -113,7 +122,18 @@ public class GalleryFragment extends ListFragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
-        selectedPosition = position;
+        if (selectedPosition != position) {
+            Log.e(TAG, "setting selection mark");
+            TextView tv = (TextView) view.findViewById(R.id.name);
+            tv.setTypeface(null, Typeface.BOLD);
+            tv.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
+            if (selectedTextView != null) {
+                selectedTextView.setTypeface(null, Typeface.NORMAL);
+                selectedTextView.setTextColor(Color.DKGRAY);
+            }
+            selectedPosition = position;
+            selectedTextView = tv;
+        }
     }
 
     @Override

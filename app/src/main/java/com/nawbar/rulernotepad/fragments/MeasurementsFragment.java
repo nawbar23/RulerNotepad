@@ -2,9 +2,12 @@ package com.nawbar.rulernotepad.fragments;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.Log;
@@ -14,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Measurement;
@@ -34,9 +38,10 @@ public class MeasurementsFragment extends ListFragment implements
     private MeasurementsListener listener;
     private MeasurementsCommandsListener commandsListener;
 
-    private ArrayAdapter<Measurement> adapter;
+    private MeasurementsAdapter adapter;
 
     private int selectedPosition = -1;
+    private TextView selectedTextView = null;
 
     @Override
     public void onAttach(Context context) {
@@ -57,6 +62,10 @@ public class MeasurementsFragment extends ListFragment implements
         Log.e(TAG, "onCreateView");
         View rootView = inflater.inflate(R.layout.measurments_fragment, container, false);
         setupButtons(rootView);
+
+        selectedPosition = -1;
+        selectedTextView = null;
+
         return rootView;
     }
 
@@ -84,7 +93,18 @@ public class MeasurementsFragment extends ListFragment implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Log.e(TAG, "onItemClick, position: " + position);
-        selectedPosition = position;
+        if (selectedPosition != position) {
+            Log.e(TAG, "setting selection mark");
+            TextView tv = (TextView) view.findViewById(R.id.name);
+            tv.setTypeface(null, Typeface.BOLD);
+            tv.setTextColor(ContextCompat.getColor(getActivity(), R.color.colorAccent));
+            if (selectedTextView != null) {
+                selectedTextView.setTypeface(null, Typeface.NORMAL);
+                selectedTextView.setTextColor(Color.DKGRAY);
+            }
+            selectedPosition = position;
+            selectedTextView = tv;
+        }
     }
 
     @Override
