@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.nawbar.rulernotepad.AskDialog;
 import com.nawbar.rulernotepad.PhotoNotepadView;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Arrow;
@@ -71,19 +72,12 @@ public class PhotoFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_revert");
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Cofnij!")
-                        .setCancelable(true)
-                        .setMessage("Napewno chcesz usunąc ostatni wymiar?")
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                Log.e(TAG, "fab_revert accepted");
-                                photoView.onRevert();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.cancel, null)
-                        .setIcon(android.R.drawable.ic_dialog_info)
-                        .show();
+                AskDialog.show(getActivity(), "Cofnij!", "Napewno chcesz usunąc ostatni wymiar?", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.e(TAG, "fab_revert accepted");
+                        photoView.onRevert();
+                    }
+                });
             }
         });
     }

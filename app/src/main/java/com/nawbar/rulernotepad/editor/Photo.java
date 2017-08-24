@@ -2,6 +2,7 @@ package com.nawbar.rulernotepad.editor;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DataType;
@@ -58,6 +59,7 @@ public class Photo {
         return measurement;
     }
 
+    @NonNull
     public String getName() {
         return name;
     }

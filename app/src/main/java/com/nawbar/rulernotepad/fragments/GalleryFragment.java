@@ -32,6 +32,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.nawbar.rulernotepad.AskDialog;
 import com.nawbar.rulernotepad.MainActivity;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.adapters.GalleryAdapter;
@@ -184,9 +185,15 @@ public class GalleryFragment extends ListFragment implements
             public void onClick(View view) {
                 Log.e(TAG, "fab_remove");
                 if (selectedPosition != -1) {
-                    commandsListener.onPhotoRemove(adapter.getItem(selectedPosition));
-                    selectedPosition = -1;
-                    reload();
+                    String msg = "Napewno chcesz usunąc zdjęcie \"" + adapter.getItem(selectedPosition).getName() + "\"?";
+                    AskDialog.show(getActivity(), "Usuń!", msg, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.e(TAG, "fab_remove accepted");
+                            commandsListener.onPhotoRemove(adapter.getItem(selectedPosition));
+                            selectedPosition = -1;
+                            reload();
+                        }
+                    });
                 } else {
                     listener.onMessage("Zaznacz zdjęcie do usunięcia");
                 }

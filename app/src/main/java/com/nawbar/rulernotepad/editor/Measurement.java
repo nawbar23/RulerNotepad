@@ -1,5 +1,7 @@
 package com.nawbar.rulernotepad.editor;
 
+import android.support.annotation.NonNull;
+
 import com.j256.ormlite.dao.ForeignCollection;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.field.ForeignCollectionField;
@@ -53,6 +55,7 @@ public class Measurement {
         return id;
     }
 
+    @NonNull
     public String getName() {
         return name;
     }
