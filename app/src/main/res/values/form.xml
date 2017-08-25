@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="questions">
+        <item>Przygotowanie miejsca pracy</item>
+        <item>Demontaż starej stolarki</item>
+        <item>Przygotowanie otworów</item>
+        <item>Montaż i uszczelnienie pianką poliuretanową</item>
+        <item>Demontaż i montaż parapetów wewnętrznych</item>
+        <item>Demontaż i montaż parapetów zewnętrznych</item>
+        <item>Uzupełnienie ubytków po wymianie</item>
+        <item>Doprowadzenie oscieży do stanu pierwotnego</item>
+        <item>Szpachlowanie, malowanie oscieży</item>
+        <item>Regulacja okuć</item>
+    </array>
+</resources>
