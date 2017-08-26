@@ -179,8 +179,9 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onClose() {
-        Log.e(TAG, "onClose");
+    public void onFormClose(Measurement measurement) {
+        Log.e(TAG, "onFormClose");
+        editor.update(measurement);
         formDialog = null;
     }
 

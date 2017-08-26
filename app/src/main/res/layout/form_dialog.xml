@@ -8,18 +8,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp">
+        android:layout_marginLeft="10dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="28dp"
+        android:padding="15dp">
     </ListView>
 
     <Button
         android:id="@+id/btn_safe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_gravity="right"
+        android:layout_marginEnd="20sp"
+        android:layout_gravity="end"
         android:background="@android:color/transparent"
         android:clickable="true"
         android:text="ZAPISZ"
-        android:textColor="@color/colorAccent" />
+        android:textSize="25sp"
+        android:textColor="@color/colorAccent"
+        android:textStyle="bold"
+        />
 
 </LinearLayout>

@@ -141,4 +141,12 @@ public class Editor implements
             return new ArrayList<>();
         }
     }
+
+    public void update(Measurement measurement) {
+        try {
+            measurementsDao.update(measurement);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

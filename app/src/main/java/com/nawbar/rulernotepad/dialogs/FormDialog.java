@@ -8,8 +8,10 @@ import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 import android.util.Pair;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 
 import com.nawbar.rulernotepad.R;
@@ -33,11 +35,6 @@ public class FormDialog extends Dialog implements
     private Listener listener;
     private Measurement measurement;
 
-    private ListView optList;
-    private Button safe;
-
-    private FormAdapter adapter;
-
     public FormDialog(Context context, Listener listener, Measurement measurement) {
         super(context);
         this.listener = listener;
@@ -55,19 +52,19 @@ public class FormDialog extends Dialog implements
             list.add(new Pair<>(s, measurement.getFormValue(i)));
             i++;
         }
-        adapter = new FormAdapter(getContext(), list);
 
-        optList = (ListView) findViewById(R.id.list_view);
+        FormAdapter adapter = new FormAdapter(getContext(), list, measurement);
+        ListView optList = (ListView) findViewById(R.id.list_view);
         optList.setAdapter(adapter);
 
-        safe = (Button) findViewById(R.id.btn_safe);
+        Button safe = (Button) findViewById(R.id.btn_safe);
         safe.setOnClickListener(this);
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
         Log.e(TAG, "onDismiss");
-        listener.onClose();
+        listener.onFormClose(measurement);
     }
 
     @Override
@@ -80,6 +77,6 @@ public class FormDialog extends Dialog implements
     }
 
     public interface Listener {
-        void onClose();
+        void onFormClose(Measurement measurement);
     }
 }

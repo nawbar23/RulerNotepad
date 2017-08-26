@@ -7,10 +7,9 @@
         android:id="@+id/quest_switch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:textSize="20sp"
         android:layout_marginEnd="40dp"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:layout_gravity="end" />
 
 </LinearLayout>

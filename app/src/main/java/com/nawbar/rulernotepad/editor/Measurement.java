@@ -108,7 +108,7 @@ public class Measurement {
         return form != Long.MAX_VALUE;
     }
 
-    void setFormValue(int id, boolean state) {
+    public void setFormValue(int id, boolean state) {
         if (id <= Long.SIZE) {
             if (state) {
                 form |= 1 << id;
