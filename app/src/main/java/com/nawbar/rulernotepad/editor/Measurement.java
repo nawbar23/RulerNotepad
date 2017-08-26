@@ -27,6 +27,9 @@ public class Measurement {
     private String name;
 
     @DatabaseField(canBeNull = false)
+    private String phone;
+
+    @DatabaseField(canBeNull = false)
     private Date date;
 
     @DatabaseField(canBeNull = false)
@@ -45,8 +48,9 @@ public class Measurement {
         // ORMLite needs a no-arg constructor
     }
 
-    public Measurement(String name) {
+    public Measurement(String name, String phone) {
         this.name = name;
+        this.phone = phone;
         this.date = new Date();
         this.form = Long.MAX_VALUE;
     }
@@ -62,6 +66,14 @@ public class Measurement {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public Date getDate() {

@@ -36,8 +36,8 @@ public class Editor implements
     }
 
     @Override
-    public Measurement onMeasurementAdd(String name) {
-        Measurement m = new Measurement(name);
+    public Measurement onMeasurementAdd(String name, String phone) {
+        Measurement m = new Measurement(name, phone);
         try {
             measurementsDao.create(m);
         } catch (SQLException e) {

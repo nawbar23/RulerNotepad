@@ -25,7 +25,8 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
     private static final String TAG = DatabaseHelper.class.getName();
     private static final String DATABASE_NAME = "measurements.db";
     //private static final int DATABASE_VERSION = 1; // 11.08.2017
-    private static final int DATABASE_VERSION = 2; // 12.08.2017
+    //private static final int DATABASE_VERSION = 2; // 12.08.2017
+    private static final int DATABASE_VERSION = 3; // 26.08.2017
 
     // the DAO object we use to access the SimpleData table
     private Dao<Measurement, Integer> measurementsDao = null;

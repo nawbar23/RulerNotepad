@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.nawbar.rulernotepad.dialogs.AskDialog;
@@ -24,6 +26,8 @@ import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.adapters.MeasurementsAdapter;
 
 import java.util.List;
+
+import static android.text.InputType.TYPE_CLASS_PHONE;
 
 /**
  * Created by Bartosz Nawrot on 2017-06-15.
@@ -149,16 +153,26 @@ public class MeasurementsFragment extends ListFragment implements
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 final EditText nameInput = new EditText(getActivity());
                 nameInput.setInputType(InputType.TYPE_CLASS_TEXT);
-                nameInput.setHint("Jak się ma nazywać ten pomiar?");
+                nameInput.setHint("Nazwisko");
+                final EditText phoneInput = new EditText(getActivity());
+                phoneInput.setInputType(TYPE_CLASS_PHONE);
+                phoneInput.setHint("Numer telefonu");
+                LinearLayout layout = new LinearLayout(getActivity());
+                layout.setOrientation(LinearLayout.VERTICAL);
+                layout.addView(nameInput);
+                layout.addView(phoneInput);
+                layout.setDividerPadding(30);
                 builder.setTitle("Nowy pomiar")
                         .setCancelable(true)
-                        .setView(nameInput)
+                        .setView(layout)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 String newName = nameInput.getText().toString();
-                                if (!newName.isEmpty()) {
-                                    Log.e(TAG, "New name for measurement: " + newName);
-                                    Measurement m = commandsListener.onMeasurementAdd(newName);
+                                String newNameUpper = newName.substring(0,1).toUpperCase() + newName.substring(1);
+                                String newPhone = phoneInput.getText().toString();
+                                if (!newName.isEmpty() && !newPhone.isEmpty()) {
+                                    Log.e(TAG, "New name for measurement: " + newName + " with " + newPhone);
+                                    Measurement m = commandsListener.onMeasurementAdd(newNameUpper, newPhone);
                                     listener.onMeasurementSelect(m);
                                 }
                             }
@@ -199,7 +213,7 @@ public class MeasurementsFragment extends ListFragment implements
     }
 
     public interface MeasurementsCommandsListener {
-        Measurement onMeasurementAdd(String measurementName);
+        Measurement onMeasurementAdd(String measurementName, String measurementPhone);
         void onMeasurementRemove(Measurement measurement);
         void onMeasurementSend(Measurement measurement);
         List<Measurement> getMeasurements();
