@@ -173,7 +173,14 @@ public class MainActivity extends AppCompatActivity implements
                 if (emailProgress != null) {
                     emailProgress.dismiss();
                 }
-                AskDialog.show(MainActivity.this, "Błąd!", "Pomiar nie wysłąny.\n" + message, null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("Błąd!")
+                        .setCancelable(true)
+                        .setMessage("Pomiar nie wysłąny.\n" +
+                                "Sprawdź połączenie internetowe, albo skontaktuj się z Bartkiem :)\n"
+                                + message)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
     }
