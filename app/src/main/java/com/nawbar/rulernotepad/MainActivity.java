@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity implements
         created = true;
 
         editor = new Editor(getDatabaseHelper());
-        sender = new MeasurementSender(this);
+        sender = new MeasurementSender(this, this);
 
         fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
         currentPosition = 0;
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMeasurementSend(Measurement measurement) {
         Log.e(TAG, "onMeasurementSend: " + measurement.getName());
-        emailProgress = ProgressDialog.show(this, "Chwilka...", "Wysyłam pomiar :)", true);
+        emailProgress = ProgressDialog.show(this, "Chwilka...", "Tworzę wiadomość i wysyłam pomiar :)", true);
         sender.send(measurement);
     }
 
