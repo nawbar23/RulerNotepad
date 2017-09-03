@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
 
+import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
 
@@ -14,6 +15,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.mail.AuthenticationFailedException;
 
@@ -30,9 +33,21 @@ public class MeasurementSender {
     private ContextWrapper contextWrapper;
     private Listener listener;
 
+    private final int maxFormQuestionSize;
+
     public MeasurementSender(Context context, Listener listener) {
         this.contextWrapper = new ContextWrapper(context);
         this.listener = listener;
+
+        // check for the longest question for mail body
+        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
+        int max = 0;
+        for (String q : resArrayList) {
+            if (q.length() > max) {
+                 max = q.length();
+            }
+        }
+        maxFormQuestionSize = max;
     }
 
     public void send(Measurement measurement) {
@@ -42,19 +57,15 @@ public class MeasurementSender {
 
                 Measurement m = params[0];
                 String subject = m.getName() + " - " + m.getDateString();
-                ArrayList<Pair<File, String>> attachments = new ArrayList<>();
-                for (Photo p : m.getPhotos()) {
-                    attachments.add(new Pair<>(saveToInternalStorage(p.getName(), p.getFull()), p.getName()));
-                    Log.e(TAG, "Created: " + attachments.get(attachments.size() - 1).first.getAbsolutePath());
-                }
-
+                String body = buildBody(m);
+                ArrayList<Pair<File, String>> attachments = buildAttachments(m);
                 boolean result = false;
                 try {
                     GMailSender sender = new GMailSender("baza.okna.kosim@gmail.com", "");
                     sender.sendMail("baza.okna.kosim@gmail.com",
-                            "nawbar23@gmail.com",
+                            "nawbar23@gmail.com",//"milena.kosim@yahoo.com",
                             subject,
-                            "This is Body",
+                            body,
                             attachments);
                     result = true;
                 } catch (AuthenticationFailedException e) {
@@ -81,6 +92,52 @@ public class MeasurementSender {
                 }
             }
         }.execute(measurement);
+    }
+
+    private String buildBody(Measurement m) {
+        StringBuilder sb = new StringBuilder();
+
+        // basic information
+        sb.append("Nazwisko klienta: ").append(m.getName()).append('\n');
+        sb.append("Numer telefonu: ").append(m.getPhone()).append('\n');
+        sb.append("Data pomiaru: ").append(m.getDateString()).append('\n');
+        sb.append('\n');
+
+        // form questions
+        sb.append("    ----- Formularz -----    ").append('\n');
+        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
+        int i = 0;
+        for (String q : resArrayList) {
+            sb.append(q).append(" - ").append(m.getFormValue(i) ? "TAK" : "NIE").append('\n');
+            i++;
+        }
+        sb.append('\n');
+
+        // comments
+        sb.append("    ----- Komentarze -----    ").append('\n');
+        boolean commented = false;
+        for (Photo p : m.getPhotos()) {
+            if (p.getComment() != null) {
+                sb.append("Pomiar: ").append(p.getName()).append('\n');
+                sb.append(p.getComment()).append("\n\n");
+                commented = true;
+            }
+        }
+        if (!commented) sb.append("Brak komentarzy\n");
+        sb.append("\n");
+        sb.append("Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.\n");
+        sb.append("W razie problemów skontaktuj się z Bartkiem :)\n");
+
+        return sb.toString();
+    }
+
+    private ArrayList<Pair<File,String>> buildAttachments(Measurement m) {
+        ArrayList<Pair<File, String>> attachments = new ArrayList<>();
+        for (Photo p : m.getPhotos()) {
+            attachments.add(new Pair<>(saveToInternalStorage(p.getName(), p.getFull()), p.getName()));
+            Log.e(TAG, "Created: " + attachments.get(attachments.size() - 1).first.getAbsolutePath());
+        }
+        return attachments;
     }
 
     private File saveToInternalStorage(String name, Bitmap bitmapImage){

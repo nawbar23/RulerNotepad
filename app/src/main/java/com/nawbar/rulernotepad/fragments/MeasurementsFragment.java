@@ -168,10 +168,10 @@ public class MeasurementsFragment extends ListFragment implements
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 String newName = nameInput.getText().toString();
-                                String newNameUpper = newName.substring(0,1).toUpperCase() + newName.substring(1);
                                 String newPhone = phoneInput.getText().toString();
                                 if (!newName.isEmpty() && !newPhone.isEmpty()) {
                                     Log.e(TAG, "New name for measurement: " + newName + " with " + newPhone);
+                                    String newNameUpper = newName.substring(0,1).toUpperCase() + newName.substring(1);
                                     Measurement m = commandsListener.onMeasurementAdd(newNameUpper, newPhone);
                                     listener.onMeasurementSelect(m);
                                 }

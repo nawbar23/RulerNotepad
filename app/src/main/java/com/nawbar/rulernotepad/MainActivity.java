@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.nawbar.rulernotepad.database.DatabaseHelper;
 import com.nawbar.rulernotepad.dialogs.AskDialog;
+import com.nawbar.rulernotepad.dialogs.CommentDialog;
 import com.nawbar.rulernotepad.editor.Editor;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
@@ -138,6 +140,12 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
         return editor;
+    }
+
+    @Override
+    public void onComment(Photo photo) {
+        Log.e(TAG, "onComment: " + photo.getName());
+        CommentDialog.show(this, editor, photo);
     }
 
     @Override

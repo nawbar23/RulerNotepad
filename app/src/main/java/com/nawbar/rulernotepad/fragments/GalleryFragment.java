@@ -156,6 +156,19 @@ public class GalleryFragment extends ListFragment implements
             }
         });
 
+        FloatingActionButton fab_comment = (FloatingActionButton) view.findViewById(R.id.fab_comment);
+        fab_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_comment");
+                if (selectedPosition != -1) {
+                    listener.onComment(adapter.getItem(selectedPosition));
+                } else {
+                    listener.onMessage("Zaznacz zdjęcie do skomentowania");
+                }
+            }
+        });
+
         FloatingActionButton fab_photo = (FloatingActionButton) view.findViewById(R.id.fab_photo);
         fab_photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -286,6 +299,7 @@ public class GalleryFragment extends ListFragment implements
         void onPhotoSelect(Photo photo);
         void onMeasurementSend(Measurement measurement);
         void onFormFill(Measurement measurement);
+        void onComment(Photo photo);
         Measurement getCurrentMeasurement();
         GalleryFragmentCommandsListener getGalleryCommandsListener();
     }

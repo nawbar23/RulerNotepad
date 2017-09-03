@@ -149,4 +149,12 @@ public class Editor implements
             e.printStackTrace();
         }
     }
+
+    public void update(Photo photo) {
+        try {
+            photosDao.update(photo);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 }

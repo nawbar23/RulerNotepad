@@ -66,6 +66,15 @@ public class PhotoFragment extends Fragment {
     }
 
     private void setupButtons(View view) {
+        FloatingActionButton fab_comment = (FloatingActionButton) view.findViewById(R.id.fab_comment);
+        fab_comment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Log.e(TAG, "fab_comment");
+                listener.onComment(listener.getCurrentPhoto());
+            }
+        });
+
         FloatingActionButton fab_revert = (FloatingActionButton) view.findViewById(R.id.fab_revert);
         fab_revert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +92,7 @@ public class PhotoFragment extends Fragment {
 
     public interface PhotoFragmentListener {
         void onMessage(String message);
+        void onComment(Photo currentPhoto);
         Photo getCurrentPhoto();
         PhotoFragmentCommandsListener getPhotoCommandsListener();
     }
