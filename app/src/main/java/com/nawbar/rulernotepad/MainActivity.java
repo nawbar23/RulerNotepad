@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements
         MeasurementSender.Listener,
         FormDialog.Listener {
 
-    private static String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private volatile DatabaseHelper helper = null;
     private volatile boolean created = false;

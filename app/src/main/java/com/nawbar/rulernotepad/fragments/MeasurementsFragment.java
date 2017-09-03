@@ -37,7 +37,7 @@ public class MeasurementsFragment extends ListFragment implements
         AdapterView.OnItemClickListener,
         AdapterView.OnItemLongClickListener {
 
-    private static String TAG = MeasurementsFragment.class.getSimpleName();
+    private static final String TAG = MeasurementsFragment.class.getSimpleName();
 
     private MeasurementsListener listener;
     private MeasurementsCommandsListener commandsListener;

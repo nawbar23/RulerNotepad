@@ -30,7 +30,7 @@ public class FormDialog extends Dialog implements
         DialogInterface.OnDismissListener,
         View.OnClickListener {
 
-    private static String TAG = FormDialog.class.getSimpleName();
+    private static final String TAG = FormDialog.class.getSimpleName();
 
     private Listener listener;
     private Measurement measurement;

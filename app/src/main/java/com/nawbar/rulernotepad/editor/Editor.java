@@ -19,7 +19,7 @@ public class Editor implements
         GalleryFragment.GalleryFragmentCommandsListener,
         PhotoFragment.PhotoFragmentCommandsListener {
 
-    private static String TAG = Editor.class.getSimpleName();
+    private static final String TAG  = Editor.class.getSimpleName();
 
     private Dao<Measurement, Integer> measurementsDao;
     private Dao<Photo, Integer> photosDao;

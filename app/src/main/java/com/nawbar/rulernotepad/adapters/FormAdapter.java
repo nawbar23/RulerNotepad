@@ -21,7 +21,7 @@ import java.util.List;
 
 public class FormAdapter extends ArrayAdapter<Pair<String, Boolean>> {
 
-    private static String TAG = FormAdapter.class.getSimpleName();
+    private static final String TAG  = FormAdapter.class.getSimpleName();
 
     private Measurement measurement;
 

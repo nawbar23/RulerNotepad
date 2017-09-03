@@ -18,7 +18,7 @@ import java.util.Locale;
 @DatabaseTable(tableName = "measurements")
 public class Measurement {
 
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.ENGLISH);
 
     @DatabaseField(generatedId = true)
     private int id;

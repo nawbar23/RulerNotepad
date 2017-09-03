@@ -9,7 +9,7 @@ import android.support.v7.app.AlertDialog;
  */
 
 public class AskDialog {
-    private static String TAG = AskDialog.class.getSimpleName();
+    private static final String TAG = AskDialog.class.getSimpleName();
 
     public static AlertDialog show(Context context,
                                    String title,

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class PhotoFragment extends Fragment {
 
-    private static String TAG = PhotoFragment.class.getSimpleName();
+    private static final String TAG = PhotoFragment.class.getSimpleName();
 
     private PhotoFragmentListener listener;
 

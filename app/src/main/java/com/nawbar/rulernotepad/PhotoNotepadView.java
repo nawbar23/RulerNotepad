@@ -29,7 +29,7 @@ import java.util.List;
 public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageView
         implements View.OnTouchListener {
 
-    private static String TAG = PhotoNotepadView.class.getSimpleName();
+    private static final String TAG  = PhotoNotepadView.class.getSimpleName();
     private static long MIN_REDRAW_TIMEOUT = 50; // [ms], 20Hz
 
     PhotoFragment.PhotoFragmentCommandsListener listener;
