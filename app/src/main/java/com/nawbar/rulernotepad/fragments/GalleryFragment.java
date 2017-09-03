@@ -143,7 +143,7 @@ public class GalleryFragment extends ListFragment implements
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_form");
-                listener.onMeasurementSend(listener.getCurrentMeasurement());
+                listener.onFormFill(listener.getCurrentMeasurement());
             }
         });
 

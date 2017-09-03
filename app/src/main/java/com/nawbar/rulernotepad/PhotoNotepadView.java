@@ -171,7 +171,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final EditText measurementInput = new EditText(getContext());
             measurementInput.setInputType(InputType.TYPE_CLASS_NUMBER);
-            measurementInput.setHint("Jak długość w milimetrach ma ten wymiar?");
+            measurementInput.setHint("Jaką długość w milimetrach ma ten wymiar?");
             builder.setTitle("Zmierz dlugość")
                     .setCancelable(false)
                     .setView(measurementInput)
