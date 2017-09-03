@@ -2,6 +2,7 @@ package com.nawbar.rulernotepad;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -34,6 +35,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
     PhotoFragment.PhotoFragmentCommandsListener listener;
 
+    private Bitmap bitmap;
+
     private Photo photo;
     private List<Arrow> arrows;
     private Arrow currentDrawing;
@@ -61,7 +64,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
         this.listener = listener;
         this.photo = photo;
         this.arrows = listener.getArrows(photo);
-        setImageBitmap(photo.getFull());
+        this.bitmap = photo.getFull();
+        setImageBitmap(bitmap);
     }
 
     private void initialize() {
@@ -142,26 +146,49 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        Log.e(TAG, event.toString());
+        //Log.e(TAG, event.toString());
         float x = event.getX();
         float y = event.getY();
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                currentDrawing = new Arrow(photo, x, y, x, y);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                currentDrawing.setEndX(x);
-                currentDrawing.setEndY(y);
-                if (isRedrawTimeout()) invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                currentDrawing.setEndX(x);
-                currentDrawing.setEndY(y);
-                addArrow(currentDrawing);
-                currentDrawing = null;
-                invalidate();
-                break;
+        // These holds the ratios for the ImageView and the bitmap
+        double bitmapRatio  = ((double)bitmap.getWidth())/bitmap.getHeight();
+        double imageViewRatio  = ((double)getWidth())/getHeight();
+        double drawLeft, drawTop, drawHeight, drawWidth;
+        if(bitmapRatio > imageViewRatio) {
+            drawLeft = 0;
+            drawHeight = (imageViewRatio/bitmapRatio) * getHeight();
+            drawWidth = getWidth();
+            drawTop = (getHeight() - drawHeight)/2;
+        } else {
+            drawTop = 0;
+            drawHeight = getHeight();
+            drawWidth = (bitmapRatio/imageViewRatio) * getWidth();
+            drawLeft = (getWidth() - drawWidth)/2;
         }
+
+        double Xr = (x - drawLeft) / drawWidth;
+        double Yr = (y - drawTop) / drawHeight;
+        StringBuilder sb = new StringBuilder();
+        sb.append("X: ").append(x).append(" Y: ").append(y).append('\n');
+        sb.append("X: ").append(Xr).append(" Y: ").append(Yr).append('\n');
+        Log.e(TAG, sb.toString());
+
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                currentDrawing = new Arrow(photo, x, y, x, y);
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                currentDrawing.setEndX(x);
+//                currentDrawing.setEndY(y);
+//                if (isRedrawTimeout()) invalidate();
+//                break;
+//            case MotionEvent.ACTION_UP:
+//                currentDrawing.setEndX(x);
+//                currentDrawing.setEndY(y);
+//                addArrow(currentDrawing);
+//                currentDrawing = null;
+//                invalidate();
+//                break;
+//        }
         return true;
     }
 
