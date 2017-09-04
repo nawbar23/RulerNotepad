@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.nawbar.rulernotepad.dialogs.AskDialog;
-import com.nawbar.rulernotepad.PhotoNotepadView;
+import com.nawbar.rulernotepad.photo.PhotoNotepadView;
 import com.nawbar.rulernotepad.R;
 import com.nawbar.rulernotepad.editor.Arrow;
 import com.nawbar.rulernotepad.editor.Photo;

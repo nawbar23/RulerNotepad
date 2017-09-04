@@ -1,15 +1,9 @@
-package com.nawbar.rulernotepad;
+package com.nawbar.rulernotepad.photo;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PointF;
-import android.provider.Settings;
-import android.support.annotation.Size;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -42,8 +36,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
     private Bitmap bitmap;
     private float drawLeft, drawTop, drawHeight, drawWidth;
-
-    private Paint linePaint;
+    private ArrowDrawer drawer;
 
     private long lastRedraw;
 
@@ -71,13 +64,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     private void initialize() {
-        linePaint = new Paint();
-        linePaint.setColor(Color.RED);
-        linePaint.setStrokeWidth(2);
-        linePaint.setTextAlign(Paint.Align.CENTER);
-
+        drawer = new ArrowDrawer();
         currentDrawing = null;
-
         setOnTouchListener(this);
     }
 
@@ -108,72 +96,16 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             drawWidth = (bitmapRatio/imageViewRatio) * getWidth();
             drawLeft = (getWidth() - drawWidth)/2;
         }
+        drawer.setShift(drawLeft, drawTop);
+        drawer.setSize(drawHeight, drawWidth);
 
         lastRedraw = System.currentTimeMillis();
         for (Arrow a : arrows) {
-            drawArrow(a, canvas, true);
+            drawer.draw(canvas, a, true);
         }
         if (currentDrawing != null) {
-            drawArrow(currentDrawing, canvas, false);
+            drawer.draw(canvas, currentDrawing, false);
         }
-    }
-
-    private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1) {
-        linePaint.setStyle(Paint.Style.FILL);
-
-        float deltaX = x1 - x0;
-        float deltaY = y1 - y0;
-        float frac = (float) 0.03;
-
-        float point_x_1 = x0 + ((1 - frac) * deltaX + frac * deltaY);
-        float point_y_1 = y0 + ((1 - frac) * deltaY - frac * deltaX);
-        float point_x_3 = x0 + ((1 - frac) * deltaX - frac * deltaY);
-        float point_y_3 = y0 + ((1 - frac) * deltaY + frac * deltaX);
-
-        Path path = new Path();
-        path.setFillType(Path.FillType.EVEN_ODD);
-        path.moveTo(point_x_1, point_y_1);
-        path.lineTo(x1, y1);
-        path.lineTo(point_x_3, point_y_3);
-        path.lineTo(point_x_1, point_y_1);
-        path.lineTo(point_x_1, point_y_1);
-        path.close();
-
-        canvas.drawPath(path, linePaint);
-    }
-
-    private void drawMeasurement(Canvas canvas, Arrow arrow) {
-        linePaint.setTextSize(25);
-        Path path = new Path();
-
-        float s[] = new float[2];
-        ratiosToCoordinates(arrow.getStartX(), arrow.getStartY(), s);
-        float e[] = new float[2];
-        ratiosToCoordinates(arrow.getEndX(), arrow.getEndY(), e);
-
-        path.moveTo(s[0], s[1]);
-        path.lineTo(e[0], e[1]);
-        canvas.drawTextOnPath(String.valueOf(arrow.getValue()) + "mm", path, 0, -5, linePaint);
-    }
-
-    private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
-        float s[] = new float[2];
-        ratiosToCoordinates(arrow.getStartX(), arrow.getStartY(), s);
-        float e[] = new float[2];
-        ratiosToCoordinates(arrow.getEndX(), arrow.getEndY(), e);
-
-        canvas.drawLine(s[0], s[1], e[0], e[1], linePaint);
-        fillArrow(canvas, s[0], s[1], e[0], e[1]);
-        fillArrow(canvas, e[0], e[1], s[0], s[1]);
-
-        if (set) {
-            drawMeasurement(canvas, arrow);
-        }
-    }
-
-    private void ratiosToCoordinates(float rX, float rY, @Size(2) float[] coord) {
-        coord[0] = drawWidth * rX + drawLeft;
-        coord[1] = drawHeight * rY + drawTop;
     }
 
     @Override
@@ -222,7 +154,7 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
     private void addArrow(final Arrow arrow) {
         Log.e(TAG, "addArrow");
-        if (true) {
+        if (arrow.isValid()) {
             Log.e(TAG, "addArrow accepted");
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final EditText measurementInput = new EditText(getContext());
