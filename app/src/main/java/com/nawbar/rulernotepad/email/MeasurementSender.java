@@ -139,6 +139,134 @@ public class MeasurementSender {
         }
     }
 
+    private String buildHtmlBody(Measurement m) {
+        return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+                "<head>" +
+                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
+                "<title>Untitled Document</title>" +
+                "<style type=\"text/css\">" +
+                "body{-webkit-text-size-adjust:none;}" +
+                ".ReadMsgBody{width:100%;}" +
+                ".ExternalClass{width:100%;}" +
+                ".ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}" +
+                "</style>" +
+                "</head>" +
+                "<body style=\"padding:0px; margin:0PX;\" bgcolor=\"\">" +
+                "<table width=\"100%\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"\"  style=\"table-layout:fixed; margin:0 auto;\">" +
+                "<tr>" +
+                "<td width=\"640\" align=\"center\" valign=\"top\">" +
+                generateMainTable(m) +
+                "</td>" +
+                "</tr>" +
+                "</table>" +
+                "</body>" +
+                "</html>";
+    }
+
+    private String generateMainTable(Measurement m) {
+        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
+                " <tr>" +
+                "<td" +
+                generateTop(m.getName(), m.getFormattedPhone(), m.getDateString()) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td style=\"padding: 5px 30px 5px 30px;\">" +
+                generateBody(m) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td style=\"padding: 30px 30px 5px 30px;\">" +
+                generateFooter() +
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateTop(String name, String phone, String date) {
+        return "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
+                "<tr>" +
+                "<td halign=\"center\" valgin=\"left\" style=\"padding: 10px 10px 10px 10px;\">" +
+                "<h2>" +
+                "Nazwisko: <b>" + name + "</b><br>" +
+                "Telefon: <b>" + phone + "</b><br>" +
+                "Data: <b>" + date + "</b>" +
+                "</h2>" +
+                "</td>" +
+                "<td align=\"center\">" +
+
+                "<img src=\"http://okna-kosim.pl/wp-content/themes/meritdesign/images/logo.png\"/>" +
+
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateBody(Measurement m) {
+        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
+                "<tr>" +
+                "<td style=\"padding: 30px 30px 30px 30px;\">" +
+                generateForm(m) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td style=\"padding: 0px 30px 0px 30px;\">" +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td>" +
+                generateComments(m) +
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateForm(Measurement m) {
+        String result = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
+        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
+        int i = 0;
+        for (String q : resArrayList) {
+            String a = m.getFormValue(i) ? "TAK" : "NIE";
+            String color = m.getFormValue(i) ? "#bef7a8" : "#f7a8a8";
+            String h = "<tr bgcolor=\"" + color + "\">" +
+                    "<td valign=\"center\" style=\"padding: 8px 8px 8px 8px;\">" +
+                    q +
+                    "</td><td valign=\"center\" align=\"center\"><b>" +
+                    a +
+                    "</b></td>" +
+                    "</tr>";
+            result += h;
+            i++;
+        }
+        result += "</table>";
+        return result;
+    }
+
+    private String generateComments(Measurement m) {
+        String result = "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
+        boolean shadow = true;
+        for (Photo p : m.getPhotos()) {
+            if (p.getComment() != null) {
+                String name = p.getName();
+                String comment = p.getComment();
+                String color = shadow ? "#e3f9f8" : "#f7ffff";
+                shadow = !shadow;
+                String a = "<tr bgcolor=\"" + color + "\">" +
+                        "<td valign=\"top\" style=\"padding: 12px 12px 12px 12px;\"><b>" + name + "</b><br>" + comment + "</td>" +
+                        "</tr>";
+                result += a;
+            }
+        }
+        result += "</table>";
+        return result;
+    }
+
+    private String generateFooter() {
+        return "Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.<br>" +
+                "W razie problemów skontaktuj się z Bartkiem :)<br>";
+    }
+
     private String buildBody(Measurement m) {
         StringBuilder sb = new StringBuilder();
 
@@ -174,126 +302,6 @@ public class MeasurementSender {
         sb.append("W razie problemów skontaktuj się z Bartkiem :)\n");
 
         return sb.toString();
-    }
-
-    private String buildHtmlBody(Measurement m) {
-        return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" +
-                "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
-                "<head>" +
-                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
-                "<title>Untitled Document</title>" +
-                "<style type=\"text/css\">" +
-                "body{-webkit-text-size-adjust:none;}" +
-                ".ReadMsgBody{width:100%;}" +
-                ".ExternalClass{width:100%;}" +
-                ".ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}" +
-                "</style>" +
-                "</head>" +
-                "<body style=\"padding:0px; margin:0PX;\" bgcolor=\"\">" +
-                "<table width=\"100%\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"\"  style=\"table-layout:fixed; margin:0 auto;\">" +
-                "<tr>" +
-                "<td width=\"640\" align=\"center\" valign=\"top\">" +
-                generateMainTable(m) +
-                "</td>" +
-                "</tr>" +
-                "</table>" +
-                "</body>" +
-                "</html>";
-    }
-
-    private String generateMainTable(Measurement m) {
-        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
-                " <tr>" +
-                "<td" +
-                generateTop(m.getName(), m.getFormattedPhone(), m.getDateString()) +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td style=\"padding: 30px 30px 30px 30px;\">" +
-                generateBody(m) +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<tdstyle=\"padding: 30px 30px 30px 30px;\">" +
-                generateFooter() +
-                "</td>" +
-                "</tr>" +
-                "</table>";
-    }
-
-    private String generateTop(String name, String phone, String date) {
-        return "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
-                "<tr>" +
-                "<td halign=\"center\" valgin=\"left\" style=\"padding: 10px 10px 10px 10px;\">" +
-                "<h1>" +
-                "Nazwisko: <b>" + name + "</b><br>" +
-                "Telefon: <b>" + phone + "</b><br>" +
-                "Data: <b>" + date + "</b>" +
-                "</h1>" +
-                "</td>" +
-                "<td align=\"center\">" +
-
-                "<img src=\"http://okna-kosim.pl/wp-content/themes/meritdesign/images/logo.png\"/>" +
-
-                "</td>" +
-                "</tr>" +
-                "</table>";
-    }
-
-    private String generateBody(Measurement m) {
-        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
-                " <tr>" +
-                "<td>" +
-                generateForm(m) +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td style=\"padding: 10px 10px 10px 10px;\">" +
-                "</td>" +
-                "</tr>" +
-                "<tr>" +
-                "<td>" +
-                generateComments(m) +
-                "</td>" +
-                "</tr>" +
-                "</table>";
-    }
-
-    private String generateForm(Measurement m) {
-        String result = "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
-        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
-        int i = 0;
-        for (String q : resArrayList) {
-            String a = m.getFormValue(i) ? "TAK" : "NIE";
-            String h = "<tr>" +
-                    "<td valign=\"center\" style=\"padding: 5px 5px 5px 5px;\">" + q + "</td><td valign=\"center\" align=\"center\"><b>" + a + "</b></td>" +
-                    "</tr>";
-            result += h;
-            i++;
-        }
-        result += "</table>";
-        return result;
-    }
-
-    private String generateComments(Measurement m) {
-        String result = "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
-        for (Photo p : m.getPhotos()) {
-            if (p.getComment() != null) {
-                String name = p.getName();
-                String comment = p.getComment();
-                String a = "<tr>" +
-                        "<td valign=\"top\" style=\"padding: 10px 10px 10px 10px;\"><b>" + name + "</b><br>" + comment + "</td>" +
-                        "</tr>";
-                result += a;
-            }
-        }
-        result += "</table>";
-        return result;
-    }
-
-    private String generateFooter() {
-        return "Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.<br>" +
-                "W razie problemów skontaktuj się z Bartkiem :)<br>";
     }
 
     public interface Listener {
