@@ -51,12 +51,12 @@ public class MeasurementSender {
 
                 Measurement m = params[0];
                 String subject = m.getName() + " - " + m.getDateString();
-                String body = buildBody(m);
+                String body = buildHtmlBody(m);//buildBody(m);
                 ArrayList<Pair<File, String>> attachments = buildAttachments(m);
                 boolean result = false;
                 try {
                     GMailSender sender = new GMailSender("baza.okna.kosim@gmail.com", "");
-                    sender.sendMail("baza.okna.kosim@gmail.com",
+                    sender.sendHtmlMail("baza.okna.kosim@gmail.com",
                             "nawbar23@gmail.com",//"milena.kosim@yahoo.com",
                             subject,
                             body,
@@ -86,43 +86,6 @@ public class MeasurementSender {
                 }
             }
         }.execute(measurement);
-    }
-
-    private String buildBody(Measurement m) {
-        StringBuilder sb = new StringBuilder();
-
-        // basic information
-        sb.append("Nazwisko klienta: ").append(m.getName()).append('\n');
-        sb.append("Numer telefonu: ").append(m.getFormattedPhone()).append('\n');
-        sb.append("Data pomiaru: ").append(m.getDateString()).append('\n');
-        sb.append('\n');
-
-        // form questions
-        sb.append("    ----- Formularz -----    ").append('\n');
-        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
-        int i = 0;
-        for (String q : resArrayList) {
-            sb.append(q).append(" - ").append(m.getFormValue(i) ? "TAK" : "NIE").append('\n');
-            i++;
-        }
-        sb.append('\n');
-
-        // comments
-        sb.append("    ----- Komentarze -----    ").append('\n');
-        boolean commented = false;
-        for (Photo p : m.getPhotos()) {
-            if (p.getComment() != null) {
-                sb.append("Pomiar: ").append(p.getName()).append('\n');
-                sb.append(p.getComment()).append("\n\n");
-                commented = true;
-            }
-        }
-        if (!commented) sb.append("Brak komentarzy\n");
-        sb.append("\n");
-        sb.append("Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.\n");
-        sb.append("W razie problemów skontaktuj się z Bartkiem :)\n");
-
-        return sb.toString();
     }
 
     private ArrayList<Pair<File,String>> buildAttachments(Measurement m) {
@@ -174,6 +137,163 @@ public class MeasurementSender {
         } else {
             Log.e(TAG, "Deleted: " + fileOrDirectory.toString());
         }
+    }
+
+    private String buildBody(Measurement m) {
+        StringBuilder sb = new StringBuilder();
+
+        // basic information
+        sb.append("Nazwisko klienta: ").append(m.getName()).append('\n');
+        sb.append("Numer telefonu: ").append(m.getFormattedPhone()).append('\n');
+        sb.append("Data pomiaru: ").append(m.getDateString()).append('\n');
+        sb.append('\n');
+
+        // form questions
+        sb.append("    ----- Formularz -----    ").append('\n');
+        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
+        int i = 0;
+        for (String q : resArrayList) {
+            sb.append(q).append(" - ").append(m.getFormValue(i) ? "TAK" : "NIE").append('\n');
+            i++;
+        }
+        sb.append('\n');
+
+        // comments
+        sb.append("    ----- Komentarze -----    ").append('\n');
+        boolean commented = false;
+        for (Photo p : m.getPhotos()) {
+            if (p.getComment() != null) {
+                sb.append("Pomiar: ").append(p.getName()).append('\n');
+                sb.append(p.getComment()).append("\n\n");
+                commented = true;
+            }
+        }
+        if (!commented) sb.append("Brak komentarzy\n");
+        sb.append("\n");
+        sb.append("Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.\n");
+        sb.append("W razie problemów skontaktuj się z Bartkiem :)\n");
+
+        return sb.toString();
+    }
+
+    private String buildHtmlBody(Measurement m) {
+        return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">" +
+                "<html xmlns=\"http://www.w3.org/1999/xhtml\">" +
+                "<head>" +
+                "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />" +
+                "<title>Untitled Document</title>" +
+                "<style type=\"text/css\">" +
+                "body{-webkit-text-size-adjust:none;}" +
+                ".ReadMsgBody{width:100%;}" +
+                ".ExternalClass{width:100%;}" +
+                ".ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {line-height: 100%;}" +
+                "</style>" +
+                "</head>" +
+                "<body style=\"padding:0px; margin:0PX;\" bgcolor=\"\">" +
+                "<table width=\"100%\" align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" bgcolor=\"\"  style=\"table-layout:fixed; margin:0 auto;\">" +
+                "<tr>" +
+                "<td width=\"640\" align=\"center\" valign=\"top\">" +
+                generateMainTable(m) +
+                "</td>" +
+                "</tr>" +
+                "</table>" +
+                "</body>" +
+                "</html>";
+    }
+
+    private String generateMainTable(Measurement m) {
+        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
+                " <tr>" +
+                "<td" +
+                generateTop(m.getName(), m.getFormattedPhone(), m.getDateString()) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td style=\"padding: 30px 30px 30px 30px;\">" +
+                generateBody(m) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<tdstyle=\"padding: 30px 30px 30px 30px;\">" +
+                generateFooter() +
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateTop(String name, String phone, String date) {
+        return "<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">" +
+                "<tr>" +
+                "<td halign=\"center\" valgin=\"left\" style=\"padding: 10px 10px 10px 10px;\">" +
+                "<h1>" +
+                "Nazwisko: <b>" + name + "</b><br>" +
+                "Telefon: <b>" + phone + "</b><br>" +
+                "Data: <b>" + date + "</b>" +
+                "</h1>" +
+                "</td>" +
+                "<td align=\"center\">" +
+
+                "<img src=\"http://okna-kosim.pl/wp-content/themes/meritdesign/images/logo.png\"/>" +
+
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateBody(Measurement m) {
+        return "<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\">" +
+                " <tr>" +
+                "<td>" +
+                generateForm(m) +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td style=\"padding: 10px 10px 10px 10px;\">" +
+                "</td>" +
+                "</tr>" +
+                "<tr>" +
+                "<td>" +
+                generateComments(m) +
+                "</td>" +
+                "</tr>" +
+                "</table>";
+    }
+
+    private String generateForm(Measurement m) {
+        String result = "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
+        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
+        int i = 0;
+        for (String q : resArrayList) {
+            String a = m.getFormValue(i) ? "TAK" : "NIE";
+            String h = "<tr>" +
+                    "<td valign=\"center\" style=\"padding: 5px 5px 5px 5px;\">" + q + "</td><td valign=\"center\" align=\"center\"><b>" + a + "</b></td>" +
+                    "</tr>";
+            result += h;
+            i++;
+        }
+        result += "</table>";
+        return result;
+    }
+
+    private String generateComments(Measurement m) {
+        String result = "<table border=\"1\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">";
+        for (Photo p : m.getPhotos()) {
+            if (p.getComment() != null) {
+                String name = p.getName();
+                String comment = p.getComment();
+                String a = "<tr>" +
+                        "<td valign=\"top\" style=\"padding: 10px 10px 10px 10px;\"><b>" + name + "</b><br>" + comment + "</td>" +
+                        "</tr>";
+                result += a;
+            }
+        }
+        result += "</table>";
+        return result;
+    }
+
+    private String generateFooter() {
+        return "Wygenerowano automatycznie w aplikacji do pomiarów Okna Kosim.<br>" +
+                "W razie problemów skontaktuj się z Bartkiem :)<br>";
     }
 
     public interface Listener {

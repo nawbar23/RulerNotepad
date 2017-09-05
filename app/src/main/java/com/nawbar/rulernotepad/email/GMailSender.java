@@ -82,4 +82,28 @@ public class GMailSender extends javax.mail.Authenticator {
         message.setContent(multipart);
         Transport.send(message);
     }
+
+    public synchronized void sendHtmlMail(String sender, String recipient, String subject, String body, List<Pair<File, String>> attachments) throws Exception {
+        MimeMessage message = new MimeMessage(session);
+        message.setSender(new InternetAddress(sender));
+        message.setRecipient(Message.RecipientType.TO, new InternetAddress(recipient));
+        message.setSubject(subject);
+
+        BodyPart textPart = new MimeBodyPart();
+        textPart.setContent(body, "text/html");// for a html email
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(textPart);
+
+        for (Pair<File, String> a : attachments) {
+            MimeBodyPart photoPart = new MimeBodyPart();
+            DataSource source = new FileDataSource(a.first.getAbsolutePath());
+            photoPart.setDataHandler(new DataHandler(source));
+            photoPart.setFileName(a.second);
+            multipart.addBodyPart(photoPart);
+        }
+
+        message.setContent(multipart);
+        Transport.send(message);
+    }
 }
