@@ -29,6 +29,9 @@ import com.nawbar.rulernotepad.fragments.GalleryFragment;
 import com.nawbar.rulernotepad.fragments.MeasurementsFragment;
 import com.nawbar.rulernotepad.fragments.PhotoFragment;
 
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+
 /**
  * Created by Bartosz Nawrot on 2017-06-21.
  */
