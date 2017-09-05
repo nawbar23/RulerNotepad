@@ -3,13 +3,16 @@ package com.nawbar.rulernotepad.email;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.util.Pair;
 
 import com.nawbar.rulernotepad.R;
+import com.nawbar.rulernotepad.editor.Arrow;
 import com.nawbar.rulernotepad.editor.Measurement;
 import com.nawbar.rulernotepad.editor.Photo;
+import com.nawbar.rulernotepad.photo.ArrowDrawer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -33,21 +36,12 @@ public class MeasurementSender {
     private ContextWrapper contextWrapper;
     private Listener listener;
 
-    private final int maxFormQuestionSize;
+    private ArrowDrawer drawer;
 
     public MeasurementSender(Context context, Listener listener) {
         this.contextWrapper = new ContextWrapper(context);
         this.listener = listener;
-
-        // check for the longest question for mail body
-        List<String> resArrayList = Arrays.asList(contextWrapper.getResources().getStringArray(R.array.questions));
-        int max = 0;
-        for (String q : resArrayList) {
-            if (q.length() > max) {
-                 max = q.length();
-            }
-        }
-        maxFormQuestionSize = max;
+        this.drawer = new ArrowDrawer();
     }
 
     public void send(Measurement measurement) {
@@ -99,7 +93,7 @@ public class MeasurementSender {
 
         // basic information
         sb.append("Nazwisko klienta: ").append(m.getName()).append('\n');
-        sb.append("Numer telefonu: ").append(m.getPhone()).append('\n');
+        sb.append("Numer telefonu: ").append(m.getFormattedPhone()).append('\n');
         sb.append("Data pomiaru: ").append(m.getDateString()).append('\n');
         sb.append('\n');
 
@@ -134,7 +128,14 @@ public class MeasurementSender {
     private ArrayList<Pair<File,String>> buildAttachments(Measurement m) {
         ArrayList<Pair<File, String>> attachments = new ArrayList<>();
         for (Photo p : m.getPhotos()) {
-            attachments.add(new Pair<>(saveToInternalStorage(p.getName(), p.getFull()), p.getName()));
+            Bitmap source = p.getFull();
+            Bitmap target = source.copy(source.getConfig(), true);
+            drawer.setSize(target.getHeight(), target.getWidth());
+            Canvas canvas = new Canvas(target);
+            for (Arrow a : p.getArrows()) {
+                drawer.draw(canvas, a, true);
+            }
+            attachments.add(new Pair<>(saveToInternalStorage(p.getName(), target), p.getName()));
             Log.e(TAG, "Created: " + attachments.get(attachments.size() - 1).first.getAbsolutePath());
         }
         return attachments;

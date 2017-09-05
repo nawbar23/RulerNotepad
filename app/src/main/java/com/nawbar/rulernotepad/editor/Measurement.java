@@ -72,6 +72,16 @@ public class Measurement {
         return phone;
     }
 
+    public String getFormattedPhone() {
+        if (phone.length() == 9) {// cell phone number
+            return "+48 " + phone.substring(0, 3)
+                    + " " + phone.substring(3, 6)
+                    + " " + phone.substring(6, phone.length());
+        } else {
+            return phone;
+        }
+    }
+
     public void setPhone(String phone) {
         this.phone = phone;
     }

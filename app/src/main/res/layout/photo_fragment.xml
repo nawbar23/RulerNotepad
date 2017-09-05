@@ -5,12 +5,12 @@
     android:layout_height="match_parent"
     tools:context="com.nawbar.rulernotepad.fragments.PhotoFragment">
 
-    <com.nawbar.rulernotepad.PhotoNotepadView
+    <com.nawbar.rulernotepad.photo.PhotoNotepadView
         android:id="@+id/photo_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:src="@drawable/android">
-    </com.nawbar.rulernotepad.PhotoNotepadView>
+    </com.nawbar.rulernotepad.photo.PhotoNotepadView>
 
     <LinearLayout
         android:layout_width="wrap_content"

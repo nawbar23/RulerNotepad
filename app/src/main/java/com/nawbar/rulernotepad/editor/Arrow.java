@@ -105,4 +105,12 @@ public class Arrow {
     public void setValue(int value) {
         this.value = value;
     }
+
+    public float getLenght() {
+        return (float)Math.hypot(startX - endX, startY - endY);
+    }
+
+    public boolean isValid() {
+        return getLenght() > 0.07f;
+    }
 }

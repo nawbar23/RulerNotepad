@@ -1,14 +1,9 @@
-package com.nawbar.rulernotepad;
+package com.nawbar.rulernotepad.photo;
 
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.graphics.PointF;
-import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.AttributeSet;
@@ -35,13 +30,13 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
 
     PhotoFragment.PhotoFragmentCommandsListener listener;
 
-    private Bitmap bitmap;
-
     private Photo photo;
     private List<Arrow> arrows;
     private Arrow currentDrawing;
 
-    private Paint linePaint;
+    private Bitmap bitmap;
+    private float drawLeft, drawTop, drawHeight, drawWidth;
+    private ArrowDrawer drawer;
 
     private long lastRedraw;
 
@@ -69,13 +64,8 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     }
 
     private void initialize() {
-        linePaint = new Paint();
-        linePaint.setColor(Color.RED);
-        linePaint.setStrokeWidth(2);
-        linePaint.setTextAlign(Paint.Align.CENTER);
-
+        drawer = new ArrowDrawer();
         currentDrawing = null;
-
         setOnTouchListener(this);
     }
 
@@ -91,68 +81,10 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
     protected void onDraw(Canvas canvas) {
         Log.e(TAG, "onDraw");
         super.onDraw(canvas);
-        lastRedraw = System.currentTimeMillis();
-        for (Arrow a : arrows) {
-            drawArrow(a, canvas, true);
-        }
-        if (currentDrawing != null) {
-            drawArrow(currentDrawing, canvas, false);
-        }
-    }
 
-    private void fillArrow(Canvas canvas, float x0, float y0, float x1, float y1) {
-        linePaint.setStyle(Paint.Style.FILL);
-
-        float deltaX = x1 - x0;
-        float deltaY = y1 - y0;
-        float frac = (float) 0.03;
-
-        float point_x_1 = x0 + ((1 - frac) * deltaX + frac * deltaY);
-        float point_y_1 = y0 + ((1 - frac) * deltaY - frac * deltaX);
-        float point_x_3 = x0 + ((1 - frac) * deltaX - frac * deltaY);
-        float point_y_3 = y0 + ((1 - frac) * deltaY + frac * deltaX);
-
-        Path path = new Path();
-        path.setFillType(Path.FillType.EVEN_ODD);
-        path.moveTo(point_x_1, point_y_1);
-        path.lineTo(x1, y1);
-        path.lineTo(point_x_3, point_y_3);
-        path.lineTo(point_x_1, point_y_1);
-        path.lineTo(point_x_1, point_y_1);
-        path.close();
-
-        canvas.drawPath(path, linePaint);
-    }
-
-    private void drawMeasurement(Canvas canvas, Arrow arrow) {
-        linePaint.setTextSize(25);
-        Path path = new Path();
-        path.moveTo(arrow.getStartX(), arrow.getStartY());
-        path.lineTo(arrow.getEndX(), arrow.getEndY());
-        canvas.drawTextOnPath(String.valueOf(arrow.getValue()) + "mm", path, 0, -5, linePaint);
-    }
-
-    private void drawArrow(Arrow arrow, Canvas canvas, boolean set) {
-        canvas.drawLine(arrow.getStartX(), arrow.getStartY(),
-                arrow.getEndX(), arrow.getEndY(), linePaint);
-        fillArrow(canvas, arrow.getStartX(), arrow.getStartY(),
-                arrow.getEndX(), arrow.getEndY());
-        fillArrow(canvas, arrow.getEndX(), arrow.getEndY(),
-                arrow.getStartX(), arrow.getStartY());
-        if (set) {
-            drawMeasurement(canvas, arrow);
-        }
-    }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        //Log.e(TAG, event.toString());
-        float x = event.getX();
-        float y = event.getY();
-        // These holds the ratios for the ImageView and the bitmap
-        double bitmapRatio  = ((double)bitmap.getWidth())/bitmap.getHeight();
-        double imageViewRatio  = ((double)getWidth())/getHeight();
-        double drawLeft, drawTop, drawHeight, drawWidth;
+        // compute drawing coefficients
+        float bitmapRatio  = ((float)bitmap.getWidth())/bitmap.getHeight();
+        float imageViewRatio  = ((float)getWidth())/getHeight();
         if(bitmapRatio > imageViewRatio) {
             drawLeft = 0;
             drawHeight = (imageViewRatio/bitmapRatio) * getHeight();
@@ -164,37 +96,66 @@ public class PhotoNotepadView extends android.support.v7.widget.AppCompatImageVi
             drawWidth = (bitmapRatio/imageViewRatio) * getWidth();
             drawLeft = (getWidth() - drawWidth)/2;
         }
+        drawer.setShift(drawLeft, drawTop);
+        drawer.setSize(drawHeight, drawWidth);
 
-        double Xr = (x - drawLeft) / drawWidth;
-        double Yr = (y - drawTop) / drawHeight;
-        StringBuilder sb = new StringBuilder();
-        sb.append("X: ").append(x).append(" Y: ").append(y).append('\n');
-        sb.append("X: ").append(Xr).append(" Y: ").append(Yr).append('\n');
-        Log.e(TAG, sb.toString());
+        lastRedraw = System.currentTimeMillis();
+        for (Arrow a : arrows) {
+            drawer.draw(canvas, a, true);
+        }
+        if (currentDrawing != null) {
+            drawer.draw(canvas, currentDrawing, false);
+        }
+    }
 
-//        switch (event.getAction()) {
-//            case MotionEvent.ACTION_DOWN:
-//                currentDrawing = new Arrow(photo, x, y, x, y);
-//                break;
-//            case MotionEvent.ACTION_MOVE:
-//                currentDrawing.setEndX(x);
-//                currentDrawing.setEndY(y);
-//                if (isRedrawTimeout()) invalidate();
-//                break;
-//            case MotionEvent.ACTION_UP:
-//                currentDrawing.setEndX(x);
-//                currentDrawing.setEndY(y);
-//                addArrow(currentDrawing);
-//                currentDrawing = null;
-//                invalidate();
-//                break;
-//        }
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        float x = event.getX();
+        float y = event.getY();
+        float rX = (x - drawLeft) / drawWidth;
+        float rY = (y - drawTop) / drawHeight;
+        Log.e(TAG, "onTouch ratios X: " + rX + " Y: " + rY);
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                if (areValidRatioCoordinates(rX, rY)) {
+                    currentDrawing = new Arrow(photo, rX, rY, rX, rY);
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                if (areValidRatioCoordinates(rX, rY)) {
+                    if (currentDrawing == null) {
+                        currentDrawing = new Arrow(photo, rX, rY, rX, rY);
+                    } else {
+                        currentDrawing.setEndX(rX);
+                        currentDrawing.setEndY(rY);
+                    }
+                }
+                if (isRedrawTimeout()) invalidate();
+                break;
+            case MotionEvent.ACTION_UP:
+                if (currentDrawing != null) {
+                    if (areValidRatioCoordinates(rX, rY)) {
+                        currentDrawing.setEndX(rX);
+                        currentDrawing.setEndY(rY);
+                    }
+                    addArrow(currentDrawing);
+                }
+                currentDrawing = null;
+                invalidate();
+                break;
+        }
         return true;
     }
 
+    private boolean areValidRatioCoordinates(float x, float y) {
+        return x >= 0.f && x <= 1.f && y >= 0.f && y <= 1.f;
+    }
+
     private void addArrow(final Arrow arrow) {
-        if (true) {
-            Log.e(TAG, "fab_revert");
+        Log.e(TAG, "addArrow");
+        if (arrow.isValid()) {
+            Log.e(TAG, "addArrow accepted");
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             final EditText measurementInput = new EditText(getContext());
             measurementInput.setInputType(InputType.TYPE_CLASS_NUMBER);
