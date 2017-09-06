@@ -1,6 +1,5 @@
 package com.nawbar.rulernotepad.email;
 
-import android.os.Environment;
 import android.util.Pair;
 
 import javax.activation.DataHandler;
@@ -90,7 +89,7 @@ public class GMailSender extends javax.mail.Authenticator {
         message.setSubject(subject);
 
         BodyPart textPart = new MimeBodyPart();
-        textPart.setContent(body, "text/html");// for a html email
+        textPart.setContent(body, "text/html; charset=utf-8");// for a html email
 
         Multipart multipart = new MimeMultipart();
         multipart.addBodyPart(textPart);
