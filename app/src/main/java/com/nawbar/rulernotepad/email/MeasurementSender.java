@@ -98,7 +98,7 @@ public class MeasurementSender {
             for (Arrow a : p.getArrows()) {
                 drawer.draw(canvas, a, true);
             }
-            attachments.add(new Pair<>(saveToInternalStorage(p.getName(), target), p.getName()));
+            attachments.add(new Pair<>(saveToInternalStorage(p.getName(), target), p.getName() + ".jpg"));
             Log.e(TAG, "Created: " + attachments.get(attachments.size() - 1).first.getAbsolutePath());
         }
         return attachments;
