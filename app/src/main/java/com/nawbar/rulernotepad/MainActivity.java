@@ -303,6 +303,8 @@ public class MainActivity extends AppCompatActivity implements
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.e(TAG, "database wipe accepted");
                                 helper.wipeDatabase();
+                                currentMeasurement = null;
+                                currentPhoto = null;
                                 if (currentPosition > 0) {
                                     currentPosition = 0;
                                     moveToFragment();
