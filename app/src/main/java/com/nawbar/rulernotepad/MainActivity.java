@@ -89,12 +89,13 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.container, fragments[currentPosition]);
-        ft.commit();
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(currentPosition != 0);
+
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.container, fragments[currentPosition]);
+            ft.commit();
+        }
     }
 
     private void restoreState(Bundle savedInstanceState) {
