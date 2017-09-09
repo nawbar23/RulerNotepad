@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -44,13 +45,12 @@ public class MeasurementsFragment extends ListFragment implements
 
     private MeasurementsAdapter adapter;
 
-    private int selectedPosition = -1;
-    private TextView selectedTextView = null;
+    private int selectedPosition;
+    private TextView selectedTextView;
 
     @Override
     public void onAttach(Context context) {
         Log.e(TAG, "onAttach");
-        super.onAttach(context);
         if (context instanceof MeasurementsListener) {
             listener = (MeasurementsListener) context;
             commandsListener = listener.getMeasurementsCommandsListener();
@@ -58,6 +58,7 @@ public class MeasurementsFragment extends ListFragment implements
             throw new ClassCastException(context.toString()
                     + " must implement MeasurementsFragment.MeasurementsListener");
         }
+        super.onAttach(context);
     }
 
     @Override
@@ -67,6 +68,7 @@ public class MeasurementsFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.measurments_fragment, container, false);
         setupButtons(rootView);
 
+        // TODO these fields should be restored from save instance state
         selectedPosition = -1;
         selectedTextView = null;
 
@@ -76,11 +78,10 @@ public class MeasurementsFragment extends ListFragment implements
     @Override
     public void onStart() {
         Log.e(TAG, "onStart");
-        super.onStart();
-
         reload();
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+        super.onStart();
     }
 
     public void reload() {
@@ -92,6 +93,12 @@ public class MeasurementsFragment extends ListFragment implements
     public void onStop() {
         Log.e(TAG, "onStop");
         super.onStop();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
     }
 
     @Override

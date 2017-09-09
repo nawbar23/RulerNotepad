@@ -157,4 +157,22 @@ public class Editor implements
             e.printStackTrace();
         }
     }
+
+    public Measurement getMeasurement(int measurementId) {
+        try {
+            return measurementsDao.queryForId(measurementId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Photo getPhoto(int photoId) {
+        try {
+            return photosDao.queryForId(photoId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

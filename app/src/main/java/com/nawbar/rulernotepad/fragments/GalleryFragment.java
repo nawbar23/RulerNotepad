@@ -63,8 +63,8 @@ public class GalleryFragment extends ListFragment implements
     private String currentPhotoName;
     private String currentPhotoPath;
 
-    private int selectedPosition = -1;
-    private TextView selectedTextView = null;
+    private int selectedPosition;
+    private TextView selectedTextView;
 
     @Override
     public void onAttach(Context context) {
@@ -86,6 +86,7 @@ public class GalleryFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
         setupButtons(rootView);
 
+        // TODO these fields should be restored from save instance state
         selectedPosition = -1;
         selectedTextView = null;
 

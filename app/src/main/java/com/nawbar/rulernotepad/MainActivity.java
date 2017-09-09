@@ -55,17 +55,16 @@ public class MainActivity extends AppCompatActivity implements
     private Editor editor;
 
     private MeasurementSender sender;
-    private ProgressDialog emailProgress = null;
+    private ProgressDialog emailProgress;
 
-    private FormDialog formDialog = null;
+    private FormDialog formDialog;
 
     private Measurement currentMeasurement;
     private Photo currentPhoto;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        Log.e(TAG, "onCreate");
 
         helper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
         created = true;
@@ -74,20 +73,77 @@ public class MainActivity extends AppCompatActivity implements
         sender = new MeasurementSender(this, this);
 
         fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
-        currentPosition = 0;
 
+        currentPosition = 0;
+        currentMeasurement = null;
+        currentPhoto = null;
+
+        // TODO also these dialogs should be restored if not null
+        emailProgress = null;
+        formDialog = null;
+
+        restoreState(savedInstanceState);
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.add(R.id.container, fragments[currentPosition]);
         ft.commit();
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(currentPosition != 0);
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("currentPosition")) {
+                currentPosition = savedInstanceState.getInt("currentPosition");
+                Log.e(TAG, "Loaded currentPosition: " + currentPosition);
+            }
+            if (savedInstanceState.containsKey("currentMeasurementId")) {
+                currentMeasurement = editor.getMeasurement(savedInstanceState.getInt("currentMeasurementId"));
+                Log.e(TAG, "Loaded currentMeasurement: " + currentMeasurement.getName());
+            }
+            if (savedInstanceState.containsKey("currentPhotoId")) {
+                currentPhoto = editor.getPhoto(savedInstanceState.getInt("currentPhotoId"));
+                Log.e(TAG, "Loaded currentPhoto: " + currentPhoto.getName());
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        Log.e(TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        outState.putInt("currentPosition", currentPosition);
+        if (currentMeasurement != null) {
+            outState.putInt("currentMeasurementId", currentMeasurement.getId());
+        }
+        if (currentPhoto != null) {
+            outState.putInt("currentPhotoId", currentPhoto.getId());
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        Log.e(TAG, "onDestroy");
         destroyed = true;
+        super.onDestroy();
     }
 
     @Override
@@ -124,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public MeasurementsFragment.MeasurementsCommandsListener getMeasurementsCommandsListener() {
+        Log.e(TAG, "getMeasurementsCommandsListener");
         return editor;
     }
 
@@ -137,11 +194,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public Measurement getCurrentMeasurement() {
+        Log.e(TAG, "getCurrentMeasurement");
         return currentMeasurement;
     }
 
     @Override
     public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
+        Log.e(TAG, "getGalleryCommandsListener");
         return editor;
     }
 
@@ -153,11 +212,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public Photo getCurrentPhoto() {
+        Log.e(TAG, "getCurrentPhoto");
         return currentPhoto;
     }
 
     @Override
     public PhotoFragment.PhotoFragmentCommandsListener getPhotoCommandsListener() {
+        Log.e(TAG, "getPhotoCommandsListener");
         return editor;
     }
 
