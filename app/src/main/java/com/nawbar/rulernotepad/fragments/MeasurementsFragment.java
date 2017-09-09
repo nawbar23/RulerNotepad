@@ -68,9 +68,15 @@ public class MeasurementsFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.measurments_fragment, container, false);
         setupButtons(rootView);
 
-        // TODO these fields should be restored from save instance state
         selectedPosition = -1;
         selectedTextView = null;
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("selectedPosition")) {
+                selectedPosition = savedInstanceState.getInt("selectedPosition");
+                Log.e(TAG, "Loaded selectedPosition: " + selectedPosition);
+            }
+        }
 
         return rootView;
     }
@@ -78,15 +84,20 @@ public class MeasurementsFragment extends ListFragment implements
     @Override
     public void onStart() {
         Log.e(TAG, "onStart");
-        reload();
+        super.onStart();
+
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
-        super.onStart();
+        reload();
     }
 
     public void reload() {
         adapter = new MeasurementsAdapter(getActivity(), commandsListener.getMeasurements());
         setListAdapter(adapter);
+
+        if (selectedPosition != -1) {
+            Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+        }
     }
 
     @Override
@@ -96,8 +107,17 @@ public class MeasurementsFragment extends ListFragment implements
     }
 
     @Override
+    public void onDetach() {
+        Log.e(TAG, "onStop");
+        super.onDetach();
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.e(TAG, "onSaveInstanceState");
+        if (selectedPosition != -1) {
+            outState.putInt("selectedPosition", selectedPosition);
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -222,7 +242,6 @@ public class MeasurementsFragment extends ListFragment implements
     public interface MeasurementsCommandsListener {
         Measurement onMeasurementAdd(String measurementName, String measurementPhone);
         void onMeasurementRemove(Measurement measurement);
-        void onMeasurementSend(Measurement measurement);
         List<Measurement> getMeasurements();
     }
 }

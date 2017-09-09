@@ -56,11 +56,6 @@ public class Editor implements
     }
 
     @Override
-    public void onMeasurementSend(Measurement measurement) {
-
-    }
-
-    @Override
     public List<Measurement> getMeasurements() {
         try {
             return measurementsDao.queryForAll();

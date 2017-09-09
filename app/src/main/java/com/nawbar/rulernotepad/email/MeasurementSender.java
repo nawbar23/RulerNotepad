@@ -56,7 +56,7 @@ public class MeasurementSender {
                 boolean result = false;
                 try {
                     GMailSender sender = new GMailSender("baza.okna.kosim@gmail.com", "");
-                    sender.sendMail("baza.okna.kosim@gmail.com",
+                    sender.sendHtmlMail("baza.okna.kosim@gmail.com",
                             "nawbar23@gmail.com",//"milena.kosim@yahoo.com",
                             subject,
                             body,

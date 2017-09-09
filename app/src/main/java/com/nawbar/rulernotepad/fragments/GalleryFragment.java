@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
@@ -60,8 +61,8 @@ public class GalleryFragment extends ListFragment implements
 
     private ArrayAdapter<Photo> adapter;
 
-    private String currentPhotoName;
-    private String currentPhotoPath;
+    private String currentPhotoName = null;
+    private String currentPhotoPath = null;
 
     private int selectedPosition;
     private TextView selectedTextView;
@@ -86,9 +87,23 @@ public class GalleryFragment extends ListFragment implements
         View rootView = inflater.inflate(R.layout.gallery_fragment, container, false);
         setupButtons(rootView);
 
-        // TODO these fields should be restored from save instance state
         selectedPosition = -1;
         selectedTextView = null;
+
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("selectedPosition")) {
+                selectedPosition = savedInstanceState.getInt("selectedPosition");
+                Log.e(TAG, "Loaded selectedPosition: " + selectedPosition);
+            }
+            if (savedInstanceState.containsKey("currentPhotoName")) {
+                currentPhotoName = savedInstanceState.getString("currentPhotoName");
+                Log.e(TAG, "Loaded currentPhotoName: " + currentPhotoName);
+            }
+            if (savedInstanceState.containsKey("currentPhotoPath")) {
+                currentPhotoPath = savedInstanceState.getString("currentPhotoPath");
+                Log.e(TAG, "Loaded currentPhotoPath: " + currentPhotoPath);
+            }
+        }
 
         return rootView;
     }
@@ -98,20 +113,45 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        reload();
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+        reload();
     }
 
     public void reload() {
         adapter = new GalleryAdapter(getActivity(), commandsListener.getPhotos(listener.getCurrentMeasurement()));
         setListAdapter(adapter);
+
+        if (selectedPosition != -1) {
+            Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+        }
     }
 
     @Override
     public void onStop() {
         Log.e(TAG, "onStop");
         super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "onStop");
+        super.onDetach();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        if (selectedPosition != -1) {
+            outState.putInt("selectedPosition", selectedPosition);
+        }
+        if (currentPhotoName != null) {
+            outState.putString("currentPhotoName", currentPhotoName);
+        }
+        if (currentPhotoPath != null) {
+            outState.putString("currentPhotoPath", currentPhotoPath);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -290,6 +330,8 @@ public class GalleryFragment extends ListFragment implements
                             progress.dismiss();
                         }
                     });
+                    currentPhotoName = null;
+                    currentPhotoPath = null;
                 }
             }.execute(currentPhotoName);
         }
