@@ -131,7 +131,7 @@ public class MeasurementSender {
                 deleteRecursive(child);
 
         if (!fileOrDirectory.delete()) {
-            Log.e(TAG, "Can not delete: " + fileOrDirectory.toString());
+            Log.e(TAG, "Could not delete: " + fileOrDirectory.toString());
         } else {
             Log.e(TAG, "Deleted: " + fileOrDirectory.toString());
         }
