@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -124,6 +125,7 @@ public class GalleryFragment extends ListFragment implements
 
         if (selectedPosition != -1) {
             Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+            // TODO set selection mark
         }
     }
 
@@ -226,8 +228,20 @@ public class GalleryFragment extends ListFragment implements
                             public void onClick(DialogInterface dialog, int which) {
                                 currentPhotoName = nameInput.getText().toString();
                                 if (!currentPhotoName.isEmpty()) {
-                                    Log.e(TAG, "Starting camera for name: " + currentPhotoName);
-                                    dispatchTakePictureIntent();
+                                    List<Photo> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
+                                    boolean exists = false;
+                                    for (Photo p : photos) {
+                                        if (p.getName().equals(currentPhotoName)) {
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!exists) {
+                                        Log.e(TAG, "Starting camera for name: " + currentPhotoName);
+                                        dispatchTakePictureIntent();
+                                    } else {
+                                        listener.onMessage("Zdjęcie o takiej nazwie już istnieje...");
+                                    }
                                 }
                             }
                         })
@@ -241,7 +255,7 @@ public class GalleryFragment extends ListFragment implements
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_remove");
-                if (selectedPosition != -1) {
+                if (selectedPosition != -1 && adapter.getItem(selectedPosition) != null) {
                     String msg = "Napewno chcesz usunąc zdjęcie \"" + adapter.getItem(selectedPosition).getName() + "\"?";
                     AskDialog.show(getActivity(), "Usuń!", msg, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {

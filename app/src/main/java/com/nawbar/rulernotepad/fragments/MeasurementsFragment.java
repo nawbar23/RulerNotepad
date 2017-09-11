@@ -97,6 +97,7 @@ public class MeasurementsFragment extends ListFragment implements
 
         if (selectedPosition != -1) {
             Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+            // TODO set selection mark
         }
     }
 
