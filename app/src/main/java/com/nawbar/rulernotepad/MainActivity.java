@@ -64,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements
     private Measurement currentMeasurement;
     private Photo currentPhoto;
 
+    private boolean formWhileSending = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.e(TAG, "onCreate");
@@ -174,8 +176,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMeasurementSend(Measurement measurement) {
         Log.e(TAG, "onMeasurementSend: " + measurement.getName());
-        emailProgress = ProgressDialog.show(this, "Chwilka...", "Tworzę wiadomość i wysyłam pomiar :)", true);
-        sender.send(measurement);
+        if (measurement.getPhotos().isEmpty()) {
+            onMessage("Ten pomiar nie ma zadnych zdjęć...");
+            return;
+        }
+        if (measurement.isFormFilled()) {
+            sendMeasurement(measurement);
+        } else {
+            formWhileSending = true;
+            onFormFill(measurement);
+        }
+
     }
 
     @Override
@@ -269,6 +280,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.e(TAG, "onFormClose");
         editor.update(measurement);
         formDialog = null;
+        if (formWhileSending) {
+            Log.e(TAG, "Sending measurement after form fill");
+            formWhileSending = false;
+            sendMeasurement(measurement);
+        }
     }
 
     @Override
@@ -357,6 +373,15 @@ public class MainActivity extends AppCompatActivity implements
         if (currentPosition == 0) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
+    }
+
+    private void sendMeasurement(Measurement measurement) {
+        Log.e(TAG, "sendMeasurement: " + measurement.getName());
+        emailProgress = ProgressDialog.show(this,
+                "Chwilka...",
+                "Tworzę wiadomość i wysyłam pomiar :)\n" +
+                "To może potrwać do kilku minut, w zależności od jakości połączenia internetowego.", true);
+        sender.send(measurement);
     }
 
     public DatabaseHelper getDatabaseHelper() {
