@@ -303,10 +303,12 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.action_about:
+                String message = getResources().getString(R.string.action_about_description);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.action_about)
                         .setCancelable(true)
-                        .setMessage(R.string.action_about_description)
+                        .setMessage(message + "\n\nEmail destination for measurements: "
+                                + MeasurementSender.ORIGINATING_ADDRESS)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();

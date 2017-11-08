@@ -1,5 +1,6 @@
 package com.nawbar.rulernotepad.email;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
@@ -32,7 +33,7 @@ public class MeasurementSender {
     private static final String TAG = MeasurementSender.class.getSimpleName();
 
     private static final String stagingPath = "staging_path";
-    private static final String ORIGINATING_ADDRESS = "baza.okna.kosim@gmail.com";
+    public static final String ORIGINATING_ADDRESS = "baza.okna.kosim@gmail.com";
 
     private ContextWrapper contextWrapper;
     private Listener listener;
@@ -45,6 +46,7 @@ public class MeasurementSender {
         this.drawer = new ArrowDrawer();
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void send(Measurement measurement) {
         new AsyncTask<Measurement, Void, Boolean>() {
             @Override
@@ -139,7 +141,7 @@ public class MeasurementSender {
 
     private String getPassword() {
         // TODO implement this
-        return "";
+        return "wR4D@QK9qhHfwY";
     }
 
     private String getRecipient() {
