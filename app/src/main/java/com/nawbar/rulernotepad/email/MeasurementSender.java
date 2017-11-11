@@ -1,5 +1,6 @@
 package com.nawbar.rulernotepad.email;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.Bitmap;
@@ -32,6 +33,7 @@ public class MeasurementSender {
     private static final String TAG = MeasurementSender.class.getSimpleName();
 
     private static final String stagingPath = "staging_path";
+    public static final String ORIGINATING_ADDRESS = "baza.okna.kosim@gmail.com";
 
     private ContextWrapper contextWrapper;
     private Listener listener;
@@ -44,6 +46,7 @@ public class MeasurementSender {
         this.drawer = new ArrowDrawer();
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void send(Measurement measurement) {
         new AsyncTask<Measurement, Void, Boolean>() {
             @Override
@@ -55,12 +58,9 @@ public class MeasurementSender {
                 ArrayList<Pair<File, String>> attachments = buildAttachments(m);
                 boolean result = false;
                 try {
-                    GMailSender sender = new GMailSender("baza.okna.kosim@gmail.com", "");
-                    sender.sendMail("baza.okna.kosim@gmail.com",
-                            "nawbar23@gmail.com",//"milena.kosim@yahoo.com",
-                            subject,
-                            body,
-                            attachments);
+                    GMailSender sender = new GMailSender(ORIGINATING_ADDRESS, getPassword());
+                    sender.sendHtmlMail(ORIGINATING_ADDRESS, getRecipient(),
+                            subject, body, attachments);
                     result = true;
                 } catch (AuthenticationFailedException e) {
                     e.printStackTrace();
@@ -133,10 +133,20 @@ public class MeasurementSender {
                 deleteRecursive(child);
 
         if (!fileOrDirectory.delete()) {
-            Log.e(TAG, "Can not delete: " + fileOrDirectory.toString());
+            Log.e(TAG, "Could not delete: " + fileOrDirectory.toString());
         } else {
             Log.e(TAG, "Deleted: " + fileOrDirectory.toString());
         }
+    }
+
+    private String getPassword() {
+        // TODO implement this
+        return "";
+    }
+
+    private String getRecipient() {
+        // TODO implement this
+        return "biuro@okna-kosim.pl";//""nawbar23@gmail.com";
     }
 
     private String buildHtmlBody(Measurement m) {

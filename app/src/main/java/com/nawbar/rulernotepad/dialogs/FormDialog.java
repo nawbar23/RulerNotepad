@@ -70,6 +70,7 @@ public class FormDialog extends Dialog implements
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.btn_safe) {
+            measurement.setFormFilled();
             dismiss();
         } else {
             Log.e(TAG, "Ooops, unexpected click event");

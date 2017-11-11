@@ -56,11 +56,6 @@ public class Editor implements
     }
 
     @Override
-    public void onMeasurementSend(Measurement measurement) {
-
-    }
-
-    @Override
     public List<Measurement> getMeasurements() {
         try {
             return measurementsDao.queryForAll();
@@ -155,6 +150,24 @@ public class Editor implements
             photosDao.update(photo);
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Measurement getMeasurement(int measurementId) {
+        try {
+            return measurementsDao.queryForId(measurementId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Photo getPhoto(int photoId) {
+        try {
+            return photosDao.queryForId(photoId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

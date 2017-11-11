@@ -14,6 +14,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v4.content.ContextCompat;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -60,11 +62,11 @@ public class GalleryFragment extends ListFragment implements
 
     private ArrayAdapter<Photo> adapter;
 
-    private String currentPhotoName;
-    private String currentPhotoPath;
+    private String currentPhotoName = null;
+    private String currentPhotoPath = null;
 
-    private int selectedPosition = -1;
-    private TextView selectedTextView = null;
+    private int selectedPosition;
+    private TextView selectedTextView;
 
     @Override
     public void onAttach(Context context) {
@@ -89,6 +91,21 @@ public class GalleryFragment extends ListFragment implements
         selectedPosition = -1;
         selectedTextView = null;
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("selectedPosition")) {
+                selectedPosition = savedInstanceState.getInt("selectedPosition");
+                Log.e(TAG, "Loaded selectedPosition: " + selectedPosition);
+            }
+            if (savedInstanceState.containsKey("currentPhotoName")) {
+                currentPhotoName = savedInstanceState.getString("currentPhotoName");
+                Log.e(TAG, "Loaded currentPhotoName: " + currentPhotoName);
+            }
+            if (savedInstanceState.containsKey("currentPhotoPath")) {
+                currentPhotoPath = savedInstanceState.getString("currentPhotoPath");
+                Log.e(TAG, "Loaded currentPhotoPath: " + currentPhotoPath);
+            }
+        }
+
         return rootView;
     }
 
@@ -97,20 +114,46 @@ public class GalleryFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        reload();
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+        reload();
     }
 
     public void reload() {
         adapter = new GalleryAdapter(getActivity(), commandsListener.getPhotos(listener.getCurrentMeasurement()));
         setListAdapter(adapter);
+
+        if (selectedPosition != -1) {
+            Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+            // TODO set selection mark
+        }
     }
 
     @Override
     public void onStop() {
         Log.e(TAG, "onStop");
         super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "onStop");
+        super.onDetach();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        if (selectedPosition != -1) {
+            outState.putInt("selectedPosition", selectedPosition);
+        }
+        if (currentPhotoName != null) {
+            outState.putString("currentPhotoName", currentPhotoName);
+        }
+        if (currentPhotoPath != null) {
+            outState.putString("currentPhotoPath", currentPhotoPath);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -185,8 +228,20 @@ public class GalleryFragment extends ListFragment implements
                             public void onClick(DialogInterface dialog, int which) {
                                 currentPhotoName = nameInput.getText().toString();
                                 if (!currentPhotoName.isEmpty()) {
-                                    Log.e(TAG, "Starting camera for name: " + currentPhotoName);
-                                    dispatchTakePictureIntent();
+                                    List<Photo> photos = commandsListener.getPhotos(listener.getCurrentMeasurement());
+                                    boolean exists = false;
+                                    for (Photo p : photos) {
+                                        if (p.getName().equals(currentPhotoName)) {
+                                            exists = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!exists) {
+                                        Log.e(TAG, "Starting camera for name: " + currentPhotoName);
+                                        dispatchTakePictureIntent();
+                                    } else {
+                                        listener.onMessage("Zdjęcie o takiej nazwie już istnieje...");
+                                    }
                                 }
                             }
                         })
@@ -200,7 +255,7 @@ public class GalleryFragment extends ListFragment implements
             @Override
             public void onClick(View view) {
                 Log.e(TAG, "fab_remove");
-                if (selectedPosition != -1) {
+                if (selectedPosition != -1 && adapter.getItem(selectedPosition) != null) {
                     String msg = "Napewno chcesz usunąc zdjęcie \"" + adapter.getItem(selectedPosition).getName() + "\"?";
                     AskDialog.show(getActivity(), "Usuń!", msg, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -289,6 +344,8 @@ public class GalleryFragment extends ListFragment implements
                             progress.dismiss();
                         }
                     });
+                    currentPhotoName = null;
+                    currentPhotoPath = null;
                 }
             }.execute(currentPhotoName);
         }

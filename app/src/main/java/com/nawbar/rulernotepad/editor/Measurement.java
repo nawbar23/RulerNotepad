@@ -127,7 +127,7 @@ public class Measurement {
     }
 
     public boolean isFormFilled() {
-        return form != Long.MAX_VALUE;
+        return !getFormValue(Long.SIZE);
     }
 
     public void setFormValue(int id, boolean state) {
@@ -142,5 +142,9 @@ public class Measurement {
 
     public Boolean getFormValue(int i) {
         return i <= Long.SIZE && (form & (1 << i)) != 0;
+    }
+
+    public void setFormFilled() {
+        setFormValue(Long.SIZE, false);
     }
 }

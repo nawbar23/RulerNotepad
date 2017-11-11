@@ -14,6 +14,8 @@ import android.telephony.PhoneNumberUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -55,17 +57,18 @@ public class MainActivity extends AppCompatActivity implements
     private Editor editor;
 
     private MeasurementSender sender;
-    private ProgressDialog emailProgress = null;
+    private ProgressDialog emailProgress;
 
-    private FormDialog formDialog = null;
+    private FormDialog formDialog;
 
     private Measurement currentMeasurement;
     private Photo currentPhoto;
 
+    private boolean formWhileSending = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        Log.e(TAG, "onCreate");
 
         helper = OpenHelperManager.getHelper(this, DatabaseHelper.class);
         created = true;
@@ -74,20 +77,78 @@ public class MainActivity extends AppCompatActivity implements
         sender = new MeasurementSender(this, this);
 
         fragments = new Fragment[]{new MeasurementsFragment(), new GalleryFragment(), new PhotoFragment()};
-        currentPosition = 0;
 
+        currentPosition = 0;
+        currentMeasurement = null;
+        currentPhoto = null;
+
+        // TODO also these dialogs should be restored if not null
+        emailProgress = null;
+        formDialog = null;
+
+        restoreState(savedInstanceState);
+
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(currentPosition != 0);
 
-        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-        ft.add(R.id.container, fragments[currentPosition]);
-        ft.commit();
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.add(R.id.container, fragments[currentPosition]);
+            ft.commit();
+        }
+    }
+
+    private void restoreState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("currentPosition")) {
+                currentPosition = savedInstanceState.getInt("currentPosition");
+                Log.e(TAG, "Loaded currentPosition: " + currentPosition);
+            }
+            if (savedInstanceState.containsKey("currentMeasurementId")) {
+                currentMeasurement = editor.getMeasurement(savedInstanceState.getInt("currentMeasurementId"));
+                Log.e(TAG, "Loaded currentMeasurement: " + currentMeasurement.getName());
+            }
+            if (savedInstanceState.containsKey("currentPhotoId")) {
+                currentPhoto = editor.getPhoto(savedInstanceState.getInt("currentPhotoId"));
+                Log.e(TAG, "Loaded currentPhoto: " + currentPhoto.getName());
+            }
+        }
+    }
+
+    @Override
+    protected void onStart() {
+        Log.e(TAG, "onStart");
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        Log.e(TAG, "onStop");
+        super.onStop();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        outState.putInt("currentPosition", currentPosition);
+        if (currentMeasurement != null) {
+            outState.putInt("currentMeasurementId", currentMeasurement.getId());
+        }
+        if (currentPhoto != null) {
+            outState.putInt("currentPhotoId", currentPhoto.getId());
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        Log.e(TAG, "onDestroy");
         destroyed = true;
+        super.onDestroy();
     }
 
     @Override
@@ -95,7 +156,11 @@ public class MainActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+                Toast toast = Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT);
+                ViewGroup group = (ViewGroup) toast.getView();
+                TextView messageTextView = (TextView) group.getChildAt(0);
+                messageTextView.setTextSize(25);
+                toast.show();
             }
         });
     }
@@ -111,8 +176,17 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onMeasurementSend(Measurement measurement) {
         Log.e(TAG, "onMeasurementSend: " + measurement.getName());
-        emailProgress = ProgressDialog.show(this, "Chwilka...", "Tworzę wiadomość i wysyłam pomiar :)", true);
-        sender.send(measurement);
+        if (measurement.getPhotos().isEmpty()) {
+            onMessage("Ten pomiar nie ma zadnych zdjęć...");
+            return;
+        }
+        if (measurement.isFormFilled()) {
+            sendMeasurement(measurement);
+        } else {
+            formWhileSending = true;
+            onFormFill(measurement);
+        }
+
     }
 
     @Override
@@ -124,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public MeasurementsFragment.MeasurementsCommandsListener getMeasurementsCommandsListener() {
+        Log.e(TAG, "getMeasurementsCommandsListener");
         return editor;
     }
 
@@ -137,11 +212,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public Measurement getCurrentMeasurement() {
+        Log.e(TAG, "getCurrentMeasurement");
         return currentMeasurement;
     }
 
     @Override
     public GalleryFragment.GalleryFragmentCommandsListener getGalleryCommandsListener() {
+        Log.e(TAG, "getGalleryCommandsListener");
         return editor;
     }
 
@@ -153,11 +230,13 @@ public class MainActivity extends AppCompatActivity implements
 
     @Override
     public Photo getCurrentPhoto() {
+        Log.e(TAG, "getCurrentPhoto");
         return currentPhoto;
     }
 
     @Override
     public PhotoFragment.PhotoFragmentCommandsListener getPhotoCommandsListener() {
+        Log.e(TAG, "getPhotoCommandsListener");
         return editor;
     }
 
@@ -201,6 +280,11 @@ public class MainActivity extends AppCompatActivity implements
         Log.e(TAG, "onFormClose");
         editor.update(measurement);
         formDialog = null;
+        if (formWhileSending) {
+            Log.e(TAG, "Sending measurement after form fill");
+            formWhileSending = false;
+            sendMeasurement(measurement);
+        }
     }
 
     @Override
@@ -219,10 +303,12 @@ public class MainActivity extends AppCompatActivity implements
                 break;
 
             case R.id.action_about:
+                String message = getResources().getString(R.string.action_about_description);
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.action_about)
                         .setCancelable(true)
-                        .setMessage(R.string.action_about_description)
+                        .setMessage(message + "\n\nEmail destination for measurements: "
+                                + MeasurementSender.ORIGINATING_ADDRESS)
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.cancel();
@@ -241,6 +327,8 @@ public class MainActivity extends AppCompatActivity implements
                             public void onClick(DialogInterface dialog, int which) {
                                 Log.e(TAG, "database wipe accepted");
                                 helper.wipeDatabase();
+                                currentMeasurement = null;
+                                currentPhoto = null;
                                 if (currentPosition > 0) {
                                     currentPosition = 0;
                                     moveToFragment();
@@ -287,6 +375,15 @@ public class MainActivity extends AppCompatActivity implements
         if (currentPosition == 0) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
+    }
+
+    private void sendMeasurement(Measurement measurement) {
+        Log.e(TAG, "sendMeasurement: " + measurement.getName());
+        emailProgress = ProgressDialog.show(this,
+                "Chwilka...",
+                "Tworzę wiadomość i wysyłam pomiar :)\n" +
+                "To może potrwać do kilku minut, w zależności od jakości połączenia internetowego.", true);
+        sender.send(measurement);
     }
 
     public DatabaseHelper getDatabaseHelper() {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
@@ -44,13 +45,12 @@ public class MeasurementsFragment extends ListFragment implements
 
     private MeasurementsAdapter adapter;
 
-    private int selectedPosition = -1;
-    private TextView selectedTextView = null;
+    private int selectedPosition;
+    private TextView selectedTextView;
 
     @Override
     public void onAttach(Context context) {
         Log.e(TAG, "onAttach");
-        super.onAttach(context);
         if (context instanceof MeasurementsListener) {
             listener = (MeasurementsListener) context;
             commandsListener = listener.getMeasurementsCommandsListener();
@@ -58,6 +58,7 @@ public class MeasurementsFragment extends ListFragment implements
             throw new ClassCastException(context.toString()
                     + " must implement MeasurementsFragment.MeasurementsListener");
         }
+        super.onAttach(context);
     }
 
     @Override
@@ -70,6 +71,13 @@ public class MeasurementsFragment extends ListFragment implements
         selectedPosition = -1;
         selectedTextView = null;
 
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey("selectedPosition")) {
+                selectedPosition = savedInstanceState.getInt("selectedPosition");
+                Log.e(TAG, "Loaded selectedPosition: " + selectedPosition);
+            }
+        }
+
         return rootView;
     }
 
@@ -78,20 +86,40 @@ public class MeasurementsFragment extends ListFragment implements
         Log.e(TAG, "onStart");
         super.onStart();
 
-        reload();
         getListView().setOnItemClickListener(this);
         getListView().setOnItemLongClickListener(this);
+        reload();
     }
 
     public void reload() {
         adapter = new MeasurementsAdapter(getActivity(), commandsListener.getMeasurements());
         setListAdapter(adapter);
+
+        if (selectedPosition != -1) {
+            Log.e(TAG, "selectedPosition to mark: " + selectedPosition);
+            // TODO set selection mark
+        }
     }
 
     @Override
     public void onStop() {
         Log.e(TAG, "onStop");
         super.onStop();
+    }
+
+    @Override
+    public void onDetach() {
+        Log.e(TAG, "onStop");
+        super.onDetach();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.e(TAG, "onSaveInstanceState");
+        if (selectedPosition != -1) {
+            outState.putInt("selectedPosition", selectedPosition);
+        }
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -215,7 +243,6 @@ public class MeasurementsFragment extends ListFragment implements
     public interface MeasurementsCommandsListener {
         Measurement onMeasurementAdd(String measurementName, String measurementPhone);
         void onMeasurementRemove(Measurement measurement);
-        void onMeasurementSend(Measurement measurement);
         List<Measurement> getMeasurements();
     }
 }
